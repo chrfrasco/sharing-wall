@@ -1,0 +1,24 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.3.1",
+    "react-dom": "^16.3.1",
+    "react-scripts": "1.1.4"
+  },
+  "scripts": {
+    "start": "npm run client:start & npm run server:dev",
+    "client:start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "server:dev": "watchexec --restart --exts \"go\" --watch . \"go run server/main.go\""
+  },
+  "proxy": "http://localhost:8080",
+  "devDependencies": {
+    "@types/react": "^16.3.5",
+    "@types/react-dom": "^16.0.4",
+    "concurrently": "^3.5.1"
+  }
+}
