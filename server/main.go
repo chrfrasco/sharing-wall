@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
 
 	"github.com/chrfrasco/sharing-wall/server/handler"
 	"github.com/chrfrasco/sharing-wall/server/storage/postgres"
@@ -23,12 +25,33 @@ func main() {
 	}
 	defer svc.Close()
 
-	h := handler.New(svc)
-	http.HandleFunc("/api/message", h.Message)
-	http.HandleFunc("/api/quotes", h.Quotes)
+	addr := fmt.Sprintf("%s:%s", os.Getenv("SV_HOST"), os.Getenv("SV_PORT"))
+	server := http.Server{
+		Addr:    addr,
+		Handler: handler.New(svc),
+	}
 
-	fmt.Println("Listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	go func() {
+		sigquit := make(chan os.Signal, 1)
+		signal.Notify(sigquit, os.Interrupt, os.Kill)
+
+		sig := <-sigquit
+		log.Printf("caught sig: %+v", sig)
+		log.Printf("Gracefully shutting down server...")
+
+		if err := server.Shutdown(context.Background()); err != nil {
+			log.Printf("Unable to shut down server: %v", err)
+		} else {
+			log.Println("Server stopped")
+		}
+	}()
+
+	fmt.Printf("\033cListening on http://%s\n", addr)
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		log.Printf("%v", err)
+	} else {
+		log.Println("Server has shut down")
+	}
 }
 
 func fatalf(template string, args ...interface{}) {
