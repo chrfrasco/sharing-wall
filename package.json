@@ -15,7 +15,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "server": "watchexec --restart --exts \"go\" --watch . \"go run server/main.go\""
+    "server": "watchexec --restart --exts \"go\" --watch . \"go run main.go\""
   },
   "proxy": "http://localhost:8080",
   "devDependencies": {

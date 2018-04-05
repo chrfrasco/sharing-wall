@@ -10,8 +10,8 @@ import (
 
 	"golang.org/x/text/language"
 
-	"github.com/chrfrasco/sharing-wall/server/lang"
-	"github.com/chrfrasco/sharing-wall/server/storage"
+	"github.com/chrfrasco/sharing-wall/lang"
+	"github.com/chrfrasco/sharing-wall/storage"
 )
 
 type handler struct {

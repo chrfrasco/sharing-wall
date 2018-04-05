@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/chrfrasco/sharing-wall/server/storage"
+	"github.com/chrfrasco/sharing-wall/storage"
 	// postgres drivers
 	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
 )

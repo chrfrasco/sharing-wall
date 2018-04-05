@@ -8,8 +8,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/chrfrasco/sharing-wall/server/handler"
-	"github.com/chrfrasco/sharing-wall/server/storage/postgres"
+	"github.com/chrfrasco/sharing-wall/handler"
+	"github.com/chrfrasco/sharing-wall/storage/postgres"
 	"github.com/joho/godotenv"
 )
 
