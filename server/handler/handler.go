@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"golang.org/x/text/language"
 
@@ -33,7 +35,25 @@ func (h *Handler) Message(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Quotes(w http.ResponseWriter, r *http.Request) {
-	sendJSON(w, `{ "quotes": [] }`)
+	limitStr := r.URL.Query().Get("limit")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		limit = 10
+	}
+
+	quotes, err := h.svc.ListQuotes(limit)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	jsonStr, err := json.Marshal(quotes)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sendJSON(w, string(jsonStr))
 }
 
 func sendJSON(w http.ResponseWriter, json string) {
