@@ -3,6 +3,25 @@ import logo from "./logo.svg";
 import api from "./api";
 import "./App.css";
 
+class Quotes extends Component {
+  state = { quotes: null };
+
+  componentDidMount() {
+    api.getQuotes().then(quotes => this.setState({ quotes }));
+  }
+
+  render() {
+    return this.state.quotes == null ? "Loading..." : this.renderQuotes();
+  }
+
+  renderQuotes() {
+    const lis = this.state.quotes.map(quote => (
+      <li>{JSON.stringify(quote)}</li>
+    ));
+    return <ul>{lis}</ul>;
+  }
+}
+
 class App extends Component {
   state = { msg: null };
 
@@ -17,9 +36,8 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">{this.state.msg || "Loading..."}</h1>
         </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+
+        <Quotes />
       </div>
     );
   }

@@ -1,9 +1,7 @@
 package storage
 
-import "golang.org/x/text/language"
-
+// Service provides a RDBMS-agnostic storage interface
 type Service interface {
-	New() *Service
-	ListQuotes(n int, locale language.Tag) []string
+	ListQuotes(n int) []string
 	Close()
 }
