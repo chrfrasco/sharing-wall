@@ -19,7 +19,13 @@ func main() {
 		fatalf("Error loading .env file: %v\n", err)
 	}
 
-	svc, err := postgres.New(os.Getenv("PG_CONN"))
+	pgConf := postgres.Conf{
+		Host: os.Getenv("PG_HOST"),
+		Name: os.Getenv("PG_NAME"),
+		User: os.Getenv("PG_USER"),
+		Pass: os.Getenv("PG_PASS"),
+	}
+	svc, err := postgres.New(pgConf)
 	if err != nil {
 		fatalf("could not init handler: %v\n", err)
 	}
@@ -46,7 +52,7 @@ func main() {
 		}
 	}()
 
-	fmt.Printf("\033cListening on http://%s\n", addr)
+	fmt.Printf("\033c Listening on http://%s\n", addr)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("%v", err)
 	} else {
