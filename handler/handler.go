@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"golang.org/x/text/language"
 
@@ -24,6 +25,7 @@ func New(svc storage.Service) http.Handler {
 	h := handler{svc}
 	mux.HandleFunc("/api/message", responseHandler(h.message))
 	mux.HandleFunc("/api/quotes", responseHandler(h.quotes))
+	mux.HandleFunc("/api/add", responseHandler(h.add))
 	return mux
 }
 
@@ -85,4 +87,34 @@ func (h handler) quotes(w io.Writer, r *http.Request) (interface{}, int, error) 
 	}
 
 	return quotes, http.StatusOK, nil
+}
+
+func (h handler) add(w io.Writer, r *http.Request) (interface{}, int, error) {
+	if r.Method != http.MethodPost {
+		return nil, http.StatusMethodNotAllowed, fmt.Errorf("Method %s not allowed", r.Method)
+	}
+
+	var input struct{ Name, Email, Body string }
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		return nil, http.StatusBadRequest, fmt.Errorf("unable to decode JSON request body: %v", err)
+	}
+
+	var q storage.Quote
+	q.Name = strings.TrimSpace(input.Name)
+	q.Email = strings.TrimSpace(input.Email)
+	q.Body = strings.TrimSpace(input.Body)
+
+	for _, s := range []string{q.Name, q.Email, q.Body} {
+		if s == "" {
+			return nil, http.StatusBadRequest, fmt.Errorf("all of name, email, body must be set")
+		}
+	}
+
+	err := h.svc.AddQuote(q)
+	if err != nil {
+		log.Printf("could not add to database: %v\n", err)
+		return nil, http.StatusInternalServerError, nil
+	}
+
+	return q, http.StatusOK, nil
 }

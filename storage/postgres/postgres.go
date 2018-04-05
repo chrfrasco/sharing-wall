@@ -9,6 +9,7 @@ import (
 	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
 )
 
+// Conf contains the params needed to init the database connection
 type Conf struct {
 	Host, Name, User, Pass string
 }
@@ -31,28 +32,21 @@ func New(c Conf) (storage.Service, error) {
 	}
 
 	query := `
+	DROP TABLE IF EXISTS "quote";
 	DROP TABLE IF EXISTS quote_;
 	DROP TABLE IF EXISTS quotes_user;
 
-	CREATE TABLE quotes_user (
-	  userID   SERIAL PRIMARY KEY,
+	CREATE TABLE "quote" (
+	  id       SERIAL PRIMARY KEY,
+	  body     TEXT NOT NULL,
 	  fullname TEXT NOT NULL,
 	  email    TEXT NOT NULL,
-	  country  TEXT NOT NULL
+	  country  TEXT NOT NULL,
+	  img      TEXT NOT NULL
 	);
 
-	CREATE TABLE quote_ (
-	  quoteID SERIAL PRIMARY KEY,
-	  body    TEXT NOT NULL,
-	  userID  INT,
-	  FOREIGN KEY (userID) REFERENCES quotes_user(userID)
-	);
-
-	INSERT INTO quotes_user (fullname, email, country)
-	VALUES ('Christian Scott', 'New Zealand', 'mail@mail.com');
-
-	INSERT INTO quote_ (body, userID)
-	VALUES ('I am not a rapper', 1);
+	INSERT INTO "quote" (body, fullname, email, country, img)
+	VALUES ('I am not a rapper', 'Christian Scott', 'New Zealand', 'mail@mail.com', 'https://foo.com/pic');
 	`
 	_, err = db.Exec(query)
 	if err != nil {
@@ -62,15 +56,16 @@ func New(c Conf) (storage.Service, error) {
 	return &postgres{db}, nil
 }
 
+// Close terminates the database connection
 func (p *postgres) Close() {
 	p.db.Close()
 }
 
+// ListQuotes returns n quotes
 func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 	q := `
-	SELECT u.fullname, q.body
-	FROM quotes_user u
-	JOIN quote_ q ON q.userID = u.userID
+	SELECT q.fullname, q.body
+	FROM "quote" q
 	LIMIT $1`
 	rows, err := p.db.Query(q, n)
 	if err != nil {
@@ -81,7 +76,7 @@ func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 	quotes := []storage.Quote{}
 	for rows.Next() {
 		var q storage.Quote
-		err = rows.Scan(&q.QuoteText, &q.Name)
+		err = rows.Scan(&q.Name, &q.Body)
 		if err != nil {
 			return nil, err
 		}
@@ -89,4 +84,16 @@ func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 	}
 
 	return quotes, nil
+}
+
+// AddQuote persists a quote to the database
+func (p postgres) AddQuote(qt storage.Quote) error {
+	q := `INSERT INTO "quote" (body, fullname, email, country, img)
+	VALUES ($1, $2, $3, $4, $5);`
+	_, err := p.db.Exec(q, qt.Body, qt.Name, qt.Email, qt.Country, qt.Img)
+	if err != nil {
+		return fmt.Errorf("could not insert: %v", err)
+	}
+
+	return nil
 }
