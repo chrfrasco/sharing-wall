@@ -52,7 +52,8 @@ func main() {
 		}
 	}()
 
-	fmt.Printf("\033c Listening on http://%s\n", addr)
+	fmt.Print("\033c")
+	log.Printf("Listening on http://%s\n", addr)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("%v", err)
 	} else {
