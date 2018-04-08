@@ -8,10 +8,14 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/fatih/color"
+	"github.com/joho/godotenv"
+
 	"github.com/chrfrasco/sharing-wall/handler"
 	"github.com/chrfrasco/sharing-wall/storage/postgres"
-	"github.com/joho/godotenv"
 )
+
+var cyan = color.New(color.FgCyan).SprintFunc()
 
 func main() {
 	err := godotenv.Load()
@@ -53,7 +57,7 @@ func main() {
 	}()
 
 	fmt.Print("\033c")
-	log.Printf("Listening on http://%s\n", addr)
+	log.Printf(cyan("Listening on http://%s\n"), addr)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("%v", err)
 	} else {

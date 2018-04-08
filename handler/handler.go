@@ -9,11 +9,14 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fatih/color"
 	"golang.org/x/text/language"
 
 	"github.com/chrfrasco/sharing-wall/lang"
 	"github.com/chrfrasco/sharing-wall/storage"
 )
+
+var red = color.New(color.FgRed).SprintFunc()
 
 type handler struct {
 	svc storage.Service
@@ -34,6 +37,7 @@ func responseHandler(h func(io.Writer, *http.Request) (interface{}, int, error))
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, status, err := h(w, r)
 		if err != nil {
+			log.Printf(red("%v"), err)
 			data = err.Error()
 		}
 
@@ -45,7 +49,7 @@ func responseHandler(h func(io.Writer, *http.Request) (interface{}, int, error))
 		w.WriteHeader(status)
 		err = json.NewEncoder(w).Encode(data)
 		if err != nil {
-			log.Printf("could not encode response to output: %v", err)
+			log.Printf(red("could not encode response to output: %v"), err)
 		}
 	}
 }
