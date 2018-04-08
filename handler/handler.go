@@ -26,6 +26,7 @@ func New(svc storage.Service) http.Handler {
 	mux.HandleFunc("/api/message", responseHandler(h.message))
 	mux.HandleFunc("/api/quotes", responseHandler(h.quotes))
 	mux.HandleFunc("/api/add", responseHandler(h.add))
+	mux.HandleFunc("/api/delete", responseHandler(h.delete))
 	return mux
 }
 
@@ -37,7 +38,7 @@ func responseHandler(h func(io.Writer, *http.Request) (interface{}, int, error))
 		}
 
 		if status == http.StatusInternalServerError {
-			data = "Sorry - something went wrong"
+			data = "oops"
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -67,7 +68,7 @@ func (h handler) message(w io.Writer, r *http.Request) (interface{}, int, error)
 
 func (h handler) quotes(w io.Writer, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodGet {
-		return nil, http.StatusMethodNotAllowed, fmt.Errorf("Method %s not allowed", r.Method)
+		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
 	}
 
 	limitStr := r.URL.Query().Get("limit")
@@ -77,7 +78,7 @@ func (h handler) quotes(w io.Writer, r *http.Request) (interface{}, int, error) 
 	}
 
 	if limit < 0 {
-		return nil, http.StatusBadRequest, fmt.Errorf("Negative limit")
+		return nil, http.StatusBadRequest, fmt.Errorf("negative limit")
 	}
 
 	quotes, err := h.svc.ListQuotes(limit)
@@ -91,7 +92,7 @@ func (h handler) quotes(w io.Writer, r *http.Request) (interface{}, int, error) 
 
 func (h handler) add(w io.Writer, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodPost {
-		return nil, http.StatusMethodNotAllowed, fmt.Errorf("Method %s not allowed", r.Method)
+		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
 	}
 
 	var input struct{ Name, Email, Body string }
@@ -117,4 +118,42 @@ func (h handler) add(w io.Writer, r *http.Request) (interface{}, int, error) {
 	}
 
 	return q, http.StatusOK, nil
+}
+
+func (h handler) delete(w io.Writer, r *http.Request) (interface{}, int, error) {
+	if r.Method != http.MethodDelete {
+		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
+	}
+
+	var input struct {
+		QuoteID  string
+		QuoteIDs []string
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		return nil, http.StatusBadRequest, fmt.Errorf("unable to decode JSON request body: %v", err)
+	}
+
+	if input.QuoteID != "" {
+		err := h.svc.DeleteQuote(input.QuoteID)
+		if err != nil {
+			log.Printf("could not delete from database: %v\n", err)
+			return nil, http.StatusInternalServerError, nil
+		}
+
+		return nil, http.StatusOK, nil
+	}
+
+	if len(input.QuoteIDs) > 0 {
+		for _, qID := range input.QuoteIDs {
+			err := h.svc.DeleteQuote(qID)
+			if err != nil {
+				log.Printf("could not delete from database: %v\n", err)
+				return nil, http.StatusInternalServerError, nil
+			}
+		}
+
+		return nil, http.StatusOK, nil
+	}
+
+	return nil, http.StatusBadRequest, fmt.Errorf("must provide a quoteID or an array of quoteIDs")
 }

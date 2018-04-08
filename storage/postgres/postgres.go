@@ -33,8 +33,6 @@ func New(c Conf) (storage.Service, error) {
 
 	query := `
 	DROP TABLE IF EXISTS "quote";
-	DROP TABLE IF EXISTS quote_;
-	DROP TABLE IF EXISTS quotes_user;
 
 	CREATE TABLE "quote" (
 	  id       SERIAL PRIMARY KEY,
@@ -42,13 +40,20 @@ func New(c Conf) (storage.Service, error) {
 	  fullname TEXT NOT NULL,
 	  email    TEXT NOT NULL,
 	  country  TEXT NOT NULL,
-	  img      TEXT NOT NULL
+	  img      TEXT NOT NULL,
+	  quoteID  TEXT NOT NULL
 	);
-
-	INSERT INTO "quote" (body, fullname, email, country, img)
-	VALUES ('I am not a rapper', 'Christian Scott', 'New Zealand', 'mail@mail.com', 'https://foo.com/pic');
 	`
 	_, err = db.Exec(query)
+	if err != nil {
+		return nil, err
+	}
+
+	query = `
+	INSERT INTO "quote" (body, fullname, email, country, img, quoteID)
+	VALUES ('I am not a rapper', 'Christian Scott', 'New Zealand', 'mail@mail.com', 'https://foo.com/pic', $1);
+	`
+	_, err = db.Exec(query, genQuoteID())
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +69,8 @@ func (p *postgres) Close() {
 // ListQuotes returns n quotes
 func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 	q := `
-	SELECT q.fullname, q.body
-	FROM "quote" q
+	SELECT body, fullname, email, country, img, quoteID
+	FROM "quote"
 	LIMIT $1`
 	rows, err := p.db.Query(q, n)
 	if err != nil {
@@ -76,7 +81,7 @@ func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 	quotes := []storage.Quote{}
 	for rows.Next() {
 		var q storage.Quote
-		err = rows.Scan(&q.Name, &q.Body)
+		err = rows.Scan(&q.Body, &q.Name, &q.Email, &q.Country, &q.Img, &q.QuoteID)
 		if err != nil {
 			return nil, err
 		}
@@ -88,12 +93,29 @@ func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 
 // AddQuote persists a quote to the database
 func (p postgres) AddQuote(qt storage.Quote) error {
-	q := `INSERT INTO "quote" (body, fullname, email, country, img)
-	VALUES ($1, $2, $3, $4, $5);`
-	_, err := p.db.Exec(q, qt.Body, qt.Name, qt.Email, qt.Country, qt.Img)
+	q := `INSERT INTO "quote" (body, fullname, email, country, img, quoteID)
+	VALUES ($1, $2, $3, $4, $5, $6);`
+	_, err := p.db.Exec(q, qt.Body, qt.Name, qt.Email, qt.Country, qt.Img, genQuoteID())
 	if err != nil {
 		return fmt.Errorf("could not insert: %v", err)
 	}
 
 	return nil
+}
+
+func (p postgres) DeleteQuote(qID string) error {
+	q := `DELETE FROM "quote" WHERE quoteID = $1`
+	_, err := p.db.Exec(q, qID)
+	if err != nil {
+		return fmt.Errorf("could not delete: %v", err)
+	}
+
+	return nil
+}
+
+var i = 3000
+
+func genQuoteID() string {
+	i++
+	return fmt.Sprintf("foobar%d", i)
 }

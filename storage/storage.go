@@ -4,6 +4,7 @@ package storage
 type Service interface {
 	ListQuotes(n int) ([]Quote, error)
 	AddQuote(q Quote) error
+	DeleteQuote(qID string) error
 	Close()
 }
 
