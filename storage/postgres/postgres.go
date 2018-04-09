@@ -2,7 +2,10 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
 
 	// postgres drivers
 	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
@@ -34,6 +37,7 @@ func New(c Conf) (storage.Service, error) {
 
 	query := `
 	DROP TABLE IF EXISTS "quote";
+	DROP TABLE IF EXISTS "user";
 
 	CREATE TABLE "quote" (
 	  id       SERIAL PRIMARY KEY,
@@ -44,6 +48,12 @@ func New(c Conf) (storage.Service, error) {
 	  img      TEXT NOT NULL,
 	  quoteID  TEXT NOT NULL
 	);
+
+	CREATE TABLE "user" (
+		id SERIAL PRIMARY KEY,
+		username TEXT NOT NULL,
+		hash TEXT NOT NULL
+	)
 	`
 	_, err = db.Exec(query)
 	if err != nil {
@@ -59,12 +69,43 @@ func New(c Conf) (storage.Service, error) {
 		return nil, err
 	}
 
+	query = `INSERT INTO "user" (username, hash) VALUES ($1, $2);`
+	username, password := "foobar", "foobar3000"
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(query, username, hash)
+	if err != nil {
+		return nil, err
+	}
+
 	return &postgres{db}, nil
 }
 
 // Close terminates the database connection
 func (p *postgres) Close() {
 	p.db.Close()
+}
+
+func (p *postgres) GetPassHash(user string) (string, error) {
+	query := `SELECT u.hash FROM "user" u WHERE u.username = $1`
+	rows, err := p.db.Query(query, user)
+	if err != nil {
+		return "", fmt.Errorf("could not get hash: %v", err)
+	}
+	if !rows.Next() {
+		return "", errors.New("no such user")
+	}
+
+	var hash string
+	err = rows.Scan(&hash)
+	if err != nil {
+		return "", fmt.Errorf("could not scan: %v", err)
+	}
+
+	return hash, nil
 }
 
 func (p *postgres) GetQuote(qID string) (*storage.Quote, error) {

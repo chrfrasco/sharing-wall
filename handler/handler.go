@@ -2,14 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/text/language"
 
 	"github.com/chrfrasco/sharing-wall/lang"
@@ -22,6 +23,8 @@ type handler struct {
 	svc storage.Service
 }
 
+type handleFunc func(http.ResponseWriter, *http.Request) (interface{}, int, error)
+
 // New creates a handler instance for the quote service
 func New(svc storage.Service) http.Handler {
 	mux := http.NewServeMux()
@@ -30,11 +33,36 @@ func New(svc storage.Service) http.Handler {
 	mux.HandleFunc("/api/quote", responseHandler(h.quote))
 	mux.HandleFunc("/api/quotes", responseHandler(h.quotes))
 	mux.HandleFunc("/api/add", responseHandler(h.add))
-	mux.HandleFunc("/api/delete", responseHandler(h.delete))
+	mux.HandleFunc("/api/delete", authResponseHandler(svc, h.delete))
 	return mux
 }
 
-func responseHandler(h func(io.Writer, *http.Request) (interface{}, int, error)) http.HandlerFunc {
+var authFailedMessage = "not authorized"
+
+func authResponseHandler(svc storage.Service, h handleFunc) http.HandlerFunc {
+	return responseHandler(func(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+		w.Header().Set("WWW-Authenticate", `Basic Realm="Restricted"`)
+		user, pass, ok := r.BasicAuth()
+		if ok == false {
+			log.Print(red("bad auth header"))
+			return nil, http.StatusUnauthorized, errors.New(authFailedMessage)
+		}
+
+		hash, err := svc.GetPassHash(user)
+		if err != nil {
+			log.Printf(red("failed to get hash %v"), err)
+			return nil, http.StatusInternalServerError, nil
+		}
+		if err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)); err != nil {
+			log.Printf(red("bad password %v"), pass)
+			return nil, http.StatusUnauthorized, errors.New(authFailedMessage)
+		}
+
+		return h(w, r)
+	})
+}
+
+func responseHandler(h func(http.ResponseWriter, *http.Request) (interface{}, int, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, status, err := h(w, r)
 		if err != nil {
@@ -55,7 +83,7 @@ func responseHandler(h func(io.Writer, *http.Request) (interface{}, int, error))
 	}
 }
 
-func (h handler) message(w io.Writer, r *http.Request) (interface{}, int, error) {
+func (h handler) message(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodGet {
 		return nil, http.StatusMethodNotAllowed, nil
 	}
@@ -71,7 +99,7 @@ func (h handler) message(w io.Writer, r *http.Request) (interface{}, int, error)
 	return msg, http.StatusOK, nil
 }
 
-func (h handler) quote(w io.Writer, r *http.Request) (interface{}, int, error) {
+func (h handler) quote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodGet {
 		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
 	}
@@ -93,7 +121,7 @@ func (h handler) quote(w io.Writer, r *http.Request) (interface{}, int, error) {
 	return quote, http.StatusOK, nil
 }
 
-func (h handler) quotes(w io.Writer, r *http.Request) (interface{}, int, error) {
+func (h handler) quotes(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodGet {
 		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
 	}
@@ -117,7 +145,7 @@ func (h handler) quotes(w io.Writer, r *http.Request) (interface{}, int, error) 
 	return quotes, http.StatusOK, nil
 }
 
-func (h handler) add(w io.Writer, r *http.Request) (interface{}, int, error) {
+func (h handler) add(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodPost {
 		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
 	}
@@ -147,7 +175,7 @@ func (h handler) add(w io.Writer, r *http.Request) (interface{}, int, error) {
 	return q, http.StatusOK, nil
 }
 
-func (h handler) delete(w io.Writer, r *http.Request) (interface{}, int, error) {
+func (h handler) delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodDelete {
 		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
 	}
