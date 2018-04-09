@@ -4,9 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/chrfrasco/sharing-wall/storage"
 	// postgres drivers
 	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
+
+	"github.com/chrfrasco/sharing-wall/storage"
 )
 
 // Conf contains the params needed to init the database connection
@@ -64,6 +65,29 @@ func New(c Conf) (storage.Service, error) {
 // Close terminates the database connection
 func (p *postgres) Close() {
 	p.db.Close()
+}
+
+func (p *postgres) GetQuote(qID string) (*storage.Quote, error) {
+	query := `
+	SELECT body, fullname, email, country, img, quoteID
+	FROM "quote"
+	WHERE quoteID = $1`
+	rows, err := p.db.Query(query, qID)
+	if err != nil {
+		return nil, fmt.Errorf("could not get quote: %v", err)
+	}
+
+	if !rows.Next() {
+		return nil, nil
+	}
+
+	var q storage.Quote
+	err = rows.Scan(&q.Body, &q.Name, &q.Email, &q.Country, &q.Img, &q.QuoteID)
+	if err != nil {
+		return nil, fmt.Errorf("could not scan: %v", err)
+	}
+
+	return &q, nil
 }
 
 // ListQuotes returns n quotes

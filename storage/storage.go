@@ -2,6 +2,7 @@ package storage
 
 // Service provides a RDBMS-agnostic storage interface
 type Service interface {
+	GetQuote(qID string) (*Quote, error)
 	ListQuotes(n int) ([]Quote, error)
 	AddQuote(q Quote) error
 	DeleteQuote(qID string) error

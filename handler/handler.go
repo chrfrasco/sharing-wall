@@ -27,6 +27,7 @@ func New(svc storage.Service) http.Handler {
 	mux := http.NewServeMux()
 	h := handler{svc}
 	mux.HandleFunc("/api/message", responseHandler(h.message))
+	mux.HandleFunc("/api/quote", responseHandler(h.quote))
 	mux.HandleFunc("/api/quotes", responseHandler(h.quotes))
 	mux.HandleFunc("/api/add", responseHandler(h.add))
 	mux.HandleFunc("/api/delete", responseHandler(h.delete))
@@ -68,6 +69,28 @@ func (h handler) message(w io.Writer, r *http.Request) (interface{}, int, error)
 	}
 
 	return msg, http.StatusOK, nil
+}
+
+func (h handler) quote(w io.Writer, r *http.Request) (interface{}, int, error) {
+	if r.Method != http.MethodGet {
+		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
+	}
+
+	quoteID := r.URL.Query().Get("quoteID")
+	if quoteID == "" {
+		return nil, http.StatusBadRequest, fmt.Errorf("missing quoteID url param")
+	}
+
+	quote, err := h.svc.GetQuote(quoteID)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	if quote == nil {
+		return nil, http.StatusNotFound, fmt.Errorf("could not find quote %s", quoteID)
+	}
+
+	return quote, http.StatusOK, nil
 }
 
 func (h handler) quotes(w io.Writer, r *http.Request) (interface{}, int, error) {
