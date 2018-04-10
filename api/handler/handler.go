@@ -13,8 +13,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/text/language"
 
-	"github.com/chrfrasco/sharing-wall/lang"
-	"github.com/chrfrasco/sharing-wall/storage"
+	"github.com/chrfrasco/sharing-wall/api/lang"
+	"github.com/chrfrasco/sharing-wall/api/storage"
 )
 
 var red = color.New(color.FgRed).SprintFunc()

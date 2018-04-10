@@ -11,8 +11,8 @@ import (
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 
-	"github.com/chrfrasco/sharing-wall/handler"
-	"github.com/chrfrasco/sharing-wall/storage/postgres"
+	"github.com/chrfrasco/sharing-wall/api/handler"
+	"github.com/chrfrasco/sharing-wall/api/storage/postgres"
 )
 
 var cyan = color.New(color.FgCyan).SprintFunc()
@@ -23,13 +23,7 @@ func main() {
 		fatalf("Error loading .env file: %v\n", err)
 	}
 
-	pgConf := postgres.Conf{
-		Host: os.Getenv("PG_HOST"),
-		Name: os.Getenv("PG_NAME"),
-		User: os.Getenv("PG_USER"),
-		Pass: os.Getenv("PG_PASS"),
-	}
-	svc, err := postgres.New(pgConf)
+	svc, err := postgres.New(os.Getenv("PG_CONN"))
 	if err != nil {
 		fatalf("could not init handler: %v\n", err)
 	}

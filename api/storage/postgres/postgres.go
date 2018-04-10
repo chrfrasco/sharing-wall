@@ -8,24 +8,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	// postgres drivers
-	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
+	_ "github.com/lib/pq"
 
-	"github.com/chrfrasco/sharing-wall/storage"
+	"github.com/chrfrasco/sharing-wall/api/storage"
 )
-
-// Conf contains the params needed to init the database connection
-type Conf struct {
-	Host, Name, User, Pass string
-}
 
 type postgres struct {
 	db *sql.DB
 }
 
 // New creates a new postgres-backed storage service
-func New(c Conf) (storage.Service, error) {
-	conn := fmt.Sprintf("host=%s dbname=%s user=%s password=%s sslmode=disable", c.Host, c.Name, c.User, c.Pass)
-	db, err := sql.Open("cloudsqlpostgres", conn)
+func New(conn string) (storage.Service, error) {
+	db, err := sql.Open("postgres", conn)
 	if err != nil {
 		return nil, err
 	}
