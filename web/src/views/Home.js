@@ -1,4 +1,6 @@
+//@ts-check
 import React from "react";
+import QuotePreview from "../components/QuotePreview";
 
 function capitalise(s = "") {
   return `${s.slice(0, 1).toUpperCase()}${s.slice(1).toLowerCase()}`;
@@ -33,6 +35,11 @@ export default class Home extends React.Component {
     quote: ""
   };
 
+  constructor(props) {
+    super(props);
+    this.handleQuoteChange = this.handleQuoteChange.bind(this);
+  }
+
   render() {
     return (
       <form
@@ -40,6 +47,11 @@ export default class Home extends React.Component {
         method="post"
         onSubmit={e => e.preventDefault()}
       >
+        <QuotePreview 
+          quote={this.state.quote} 
+          handleQuoteChange={this.handleQuoteChange}
+        />
+
         <LabelledInput name="name" placeholder="Enter your name" />
         <LabelledInput
           name="country"
@@ -50,10 +62,11 @@ export default class Home extends React.Component {
           type="email"
           placeholder="Enter your email address"
         />
-        <Labelled label={"What matters to me?"} forID="quote">
-          <textarea name="quote" placeholder="Type here" />
-        </Labelled>
       </form>
     );
+  }
+
+  handleQuoteChange(ev) {
+    this.setState({ quote: ev.target.value });
   }
 }
