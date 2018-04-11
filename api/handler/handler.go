@@ -32,8 +32,6 @@ func New(svc storage.Service) http.Handler {
 	mux.HandleFunc("/api/message", responseHandler(h.message))
 	mux.HandleFunc("/api/quote", responseHandler(h.quote))
 	mux.HandleFunc("/api/quotes", responseHandler(h.quotes))
-	mux.HandleFunc("/api/add", responseHandler(h.add))
-	mux.HandleFunc("/api/delete", authResponseHandler(svc, h.delete))
 	return mux
 }
 
@@ -100,10 +98,22 @@ func (h handler) message(w http.ResponseWriter, r *http.Request) (interface{}, i
 }
 
 func (h handler) quote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	if r.Method != http.MethodGet {
-		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
+	if r.Method == http.MethodGet {
+		return h.getQuote(w, r)
 	}
 
+	if r.Method == http.MethodPost {
+		return h.addQuote(w, r)
+	}
+
+	if r.Method == http.MethodDelete {
+		return h.deleteQuote(w, r)
+	}
+
+	return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
+}
+
+func (h handler) getQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	quoteID := r.URL.Query().Get("quoteID")
 	if quoteID == "" {
 		return nil, http.StatusBadRequest, fmt.Errorf("missing quoteID url param")
@@ -121,35 +131,7 @@ func (h handler) quote(w http.ResponseWriter, r *http.Request) (interface{}, int
 	return quote, http.StatusOK, nil
 }
 
-func (h handler) quotes(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	if r.Method != http.MethodGet {
-		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
-	}
-
-	limitStr := r.URL.Query().Get("limit")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		limit = 10
-	}
-
-	if limit < 0 {
-		return nil, http.StatusBadRequest, fmt.Errorf("negative limit")
-	}
-
-	quotes, err := h.svc.ListQuotes(limit)
-	if err != nil {
-		log.Printf("could not retrieve from database: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
-	}
-
-	return quotes, http.StatusOK, nil
-}
-
-func (h handler) add(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	if r.Method != http.MethodPost {
-		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
-	}
-
+func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	var input struct{ Name, Email, Body string }
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, http.StatusBadRequest, fmt.Errorf("unable to decode JSON request body: %v", err)
@@ -175,11 +157,7 @@ func (h handler) add(w http.ResponseWriter, r *http.Request) (interface{}, int, 
 	return q, http.StatusOK, nil
 }
 
-func (h handler) delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	if r.Method != http.MethodDelete {
-		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
-	}
-
+func (h handler) deleteQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	var input struct {
 		QuoteID  string
 		QuoteIDs []string
@@ -211,4 +189,28 @@ func (h handler) delete(w http.ResponseWriter, r *http.Request) (interface{}, in
 	}
 
 	return nil, http.StatusBadRequest, fmt.Errorf("must provide a quoteID or an array of quoteIDs")
+}
+
+func (h handler) quotes(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+	if r.Method != http.MethodGet {
+		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
+	}
+
+	limitStr := r.URL.Query().Get("limit")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil {
+		limit = 10
+	}
+
+	if limit < 0 {
+		return nil, http.StatusBadRequest, fmt.Errorf("negative limit")
+	}
+
+	quotes, err := h.svc.ListQuotes(limit)
+	if err != nil {
+		log.Printf("could not retrieve from database: %v\n", err)
+		return nil, http.StatusInternalServerError, nil
+	}
+
+	return quotes, http.StatusOK, nil
 }
