@@ -1,5 +1,9 @@
 # server
 vendor/
+api/tmp
+
+# db
+db/pgdata
 
 # dependencies
 node_modules/

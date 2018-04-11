@@ -1,18 +1,23 @@
-FROM node:latest AS builder
+FROM node:latest
 
 ENV NPM_CONFIG_LOGLEVEL warn
+ARG app_env
+ENV NODE_ENV $app_env
 
-RUN npm install -g yarn
+RUN mkdir -p /web
+WORKDIR /web
+COPY ./ ./
 
-COPY yarn.lock yarn.lock
-COPY package.json package.json
 RUN npm install
 
-COPY . .
+RUN apt-get install bash
+CMD if [ ${NODE_ENV} = production ]; then \
+    npm install -g http-server && \
+    npm run build && \
+    cd build && \
+    hs -p 3000 --proxy "http://api:8080"; \
+	else \
+	  npm run start; \
+	fi
 
-RUN npm run build
-
-FROM nginx:alpine
-
-COPY default.conf /etc/nginx/conf.d/
-COPY --from=builder /build /usr/share/nginx/html/
+EXPOSE 3000
