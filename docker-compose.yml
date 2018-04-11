@@ -20,7 +20,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./api:/go/src/chrfrasco/sharing-wall/api
+      - ./api:/go/src/github.com/chrfrasco/sharing-wall/api
     ports:
       - 8080:8080
 

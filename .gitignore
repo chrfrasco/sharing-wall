@@ -1,5 +1,5 @@
 # server
-vendor/
+api/vendor/
 api/tmp
 
 # db

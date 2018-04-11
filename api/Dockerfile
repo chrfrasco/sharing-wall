@@ -3,11 +3,18 @@ FROM golang:latest
 ARG app_env
 ENV APP_ENV $app_env
 
-WORKDIR /go/src/chrfrasco/sharing-wall/api
+RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+
+RUN mkdir -p /go/src/github.com/sharing-wall/api
+WORKDIR /go/src/github.com/chrfrasco/sharing-wall/api
+
+COPY Gopkg.toml Gopkg.lock ./
+RUN dep ensure -vendor-only
+
 COPY . .
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -a -installsuffix cgo -o api
+
 
 CMD if [ ${APP_ENV} = production ]; then \
 	  api; \
