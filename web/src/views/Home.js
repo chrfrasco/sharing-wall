@@ -1,11 +1,4 @@
 import React from "react";
-import api from "../api";
-
-const states = {
-  LOADING: "LOADING",
-  LOADED: "LOADED",
-  ERROR: "ERROR"
-};
 
 function capitalise(s = "") {
   return `${s.slice(0, 1).toUpperCase()}${s.slice(1).toLowerCase()}`;
@@ -14,7 +7,7 @@ function capitalise(s = "") {
 function Labelled({ children, label, forID }) {
   return (
     <div>
-      <label for={forID}>{label}</label>
+      <label htmlFor={forID}>{label}</label>
       {children}
     </div>
   );
