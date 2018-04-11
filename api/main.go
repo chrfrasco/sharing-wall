@@ -50,8 +50,7 @@ func main() {
 		}
 	}()
 
-	fmt.Print("\033c")
-	log.Printf(cyan("Listening on http://%s\n"), addr)
+	log.Printf(cyan("Server listening on http://%s\n"), addr)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("%v", err)
 	} else {
