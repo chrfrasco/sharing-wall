@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -17,16 +18,42 @@ type postgres struct {
 	db *sql.DB
 }
 
+func connectWithTimeout(conn string, timeout time.Duration) (*sql.DB, error) {
+	var err error
+	dbChan, criticalErrs := make(chan *sql.DB, 1), make(chan error, 1)
+	go func() {
+		for {
+			db, err := sql.Open("postgres", conn)
+			if err != nil {
+				criticalErrs <- err
+				return
+			}
+
+			err = db.Ping()
+			if err == nil && db != nil {
+				dbChan <- db
+				return
+			}
+
+			time.Sleep(time.Millisecond * 500)
+		}
+	}()
+
+	select {
+	case db := <-dbChan:
+		return db, nil
+	case err = <-criticalErrs:
+		return nil, err
+	case <-time.After(timeout):
+		return nil, fmt.Errorf("timeout: %v", err)
+	}
+}
+
 // New creates a new postgres-backed storage service
 func New(conn string) (storage.Service, error) {
-	db, err := sql.Open("postgres", conn)
+	db, err := connectWithTimeout(conn, time.Second*10)
 	if err != nil {
-		return nil, err
-	}
-
-	err = db.Ping()
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not connect to db: %v", err)
 	}
 
 	query := `
