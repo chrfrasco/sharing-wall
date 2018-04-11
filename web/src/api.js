@@ -1,22 +1,15 @@
-let baseUrl = "";
-if (process.env.NODE_ENV === "production") {
-  baseUrl = "http://localhost:3001";
-}
+export default {
+  getQuotes() {
+    return get("/api/quotes")
+      .then(res => res.json())
+      .then(({ quotes }) => quotes);
+  },
 
-export default { getMessage, getQuotes };
-
-function getQuotes() {
-  return get("/api/quotes")
-    .then(res => res.json())
-    .then(({ quotes }) => quotes);
-}
-
-function getMessage() {
-  return get("/api/message")
-    .then(response => response.json())
-    .then(({ msg }) => msg);
-}
+  getMessage() {
+    return get("/api/message").then(r => r.text());
+  }
+};
 
 function get(path) {
-  return fetch(`${baseUrl}${path}`);
+  return fetch(path);
 }
