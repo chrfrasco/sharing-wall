@@ -9,6 +9,7 @@ services:
       - api
     volumes:
       - ./web/src:/web/src 
+      - ./web/public:/web/public
     ports:
       - 3000:3000
 
