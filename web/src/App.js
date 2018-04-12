@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Switch, Route } from "react-router-dom";
 import Page from "./components/Page";
 import Home from "./views/Home";
+import Thanks from "./views/Thanks";
 
 class App extends Component {
   render() {
@@ -9,6 +10,7 @@ class App extends Component {
       <Page>
         <Switch>
           <Route exact path="/" component={Home} />
+          <Route exact path="/thanks" component={Thanks} />
         </Switch>
       </Page>
     );
