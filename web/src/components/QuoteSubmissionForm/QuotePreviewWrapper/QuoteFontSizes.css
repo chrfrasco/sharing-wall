@@ -1,0 +1,53 @@
+.quote-font--lge {
+  font-size: 32px;
+}
+
+.quote-font--med {
+  font-size: 24px;
+}
+
+.quote-font--sml {
+  font-size: 16px;
+}
+
+@media (min-width: 370px) {
+  .quote-font--lge {
+    font-size: 40px;
+  }
+  
+  .quote-font--med {
+    font-size: 32px;
+  }
+  
+  .quote-font--sml {
+    font-size: 20px;
+  } 
+}
+
+@media (min-width: 410px) {
+  .quote-font--lge {
+    font-size: 48px;
+  }
+  
+  .quote-font--med {
+    font-size: 32px;
+  }
+  
+  .quote-font--sml {
+    font-size: 24px;
+  } 
+}
+
+@media (min-width: 560px) {
+  .quote-font--lge {
+    font-size: 64px;
+  }
+
+  .quote-font--med {
+    font-size: 48px;
+  }
+
+  .quote-font--sml {
+    font-size: 32px;
+  }
+}

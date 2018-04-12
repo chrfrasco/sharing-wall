@@ -1,30 +1,26 @@
 import React from "react";
-import api from "../api";
-
-const LOADING = Symbol("LOADING");
-const LOADED = Symbol("LOADED");
-const ERROR = Symbol("ERROR");
+import api, { states } from "../api";
 
 export default class Header extends React.Component {
-  state = { fetchState: LOADING };
+  state = { fetchState: states.LOADING };
 
   componentDidMount() {
     api
       .getMessage()
-      .then(msg => this.setState({ fetchState: LOADED, msg }))
-      .catch(() => this.setState({ fetchState: ERROR }));
+      .then(msg => this.setState({ fetchState: states.LOADED, msg }))
+      .catch(() => this.setState({ fetchState: states.ERROR }));
   }
 
   render() {
     let msg;
     switch (this.state.fetchState) {
-      case LOADING:
+      case states.LOADING:
         msg = "Loading...";
         break;
-      case LOADED:
+      case states.LOADED:
         msg = this.state.msg;
         break;
-      case ERROR:
+      case states.ERROR:
         msg = "Something went wrong";
         break;
       default:
