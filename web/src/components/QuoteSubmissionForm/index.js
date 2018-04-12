@@ -1,7 +1,9 @@
 import React from "react";
+import { Redirect } from "react-router";
 import styled from "styled-components";
 import QuotePreviewWrapper from "./QuotePreviewWrapper";
 import { IS_DEVICE_TOUCHSCREEN } from "../../constants";
+import api from "../../api";
 
 const fontSizeClassNames = {
   sml: "quote-font--sml",
@@ -41,6 +43,10 @@ export default class QuoteSubmissionForm extends React.Component {
   }
 
   render() {
+    if (this.state.redirect) {
+      return <Redirect to="/thanks" />;
+    }
+
     const textareaPlaceholder = IS_DEVICE_TOUCHSCREEN
       ? "Type your answer below"
       : "Type here";
@@ -100,6 +106,7 @@ export default class QuoteSubmissionForm extends React.Component {
         <FormField>
           <label htmlFor="form-email">Email: </label>
           <input
+            type="email"
             required
             name="email"
             id="form-email"
@@ -124,7 +131,20 @@ export default class QuoteSubmissionForm extends React.Component {
    */
   handleFormSubmit(ev) {
     ev.preventDefault();
-    console.log(this.state);
+    api
+      .postQuote(this.getQuoteFromState())
+      .then(q => this.setState({ redirect: true }))
+      .catch(err => console.error(err));
+  }
+
+  getQuoteFromState() {
+    const { quote, name, email, country } = this.state;
+    return {
+      body: quote,
+      name,
+      email,
+      country
+    };
   }
 }
 
