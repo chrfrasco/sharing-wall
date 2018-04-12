@@ -1,0 +1,77 @@
+@font-face {
+  font-family: Requiem;
+  src: url("RequiemText-Roman.otf");
+}
+
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+}
+
+html {
+  box-sizing: border-box;
+  font-family: "Requiem";
+  font-size: 36px;
+  line-height: 1.2;
+  color: #555350;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.abs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.quote__wrapper {
+  height: 1000px;
+  width: 1000px;
+  position: relative;
+}
+
+.quote__background {
+  background-color: #fff9ed;
+}
+
+.quote {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.quote__body {
+  flex: 1;
+
+  font-size: 3.2rem;
+}

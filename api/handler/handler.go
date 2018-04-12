@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
@@ -132,7 +134,7 @@ func (h handler) getQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 }
 
 func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	var input struct{ Name, Email, Body string }
+	var input struct{ Name, Email, Body, Country string }
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, http.StatusBadRequest, fmt.Errorf("unable to decode JSON request body: %v", err)
 	}
@@ -141,10 +143,11 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 	q.Name = strings.TrimSpace(input.Name)
 	q.Email = strings.TrimSpace(input.Email)
 	q.Body = strings.TrimSpace(input.Body)
+	q.Country = strings.TrimSpace(input.Country)
 
-	for _, s := range []string{q.Name, q.Email, q.Body} {
+	for _, s := range []string{q.Name, q.Email, q.Body, q.Country} {
 		if s == "" {
-			return nil, http.StatusBadRequest, fmt.Errorf("all of name, email, body must be set")
+			return nil, http.StatusBadRequest, fmt.Errorf("all of name, email, body, country must be set")
 		}
 	}
 
@@ -154,7 +157,31 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 		return nil, http.StatusInternalServerError, nil
 	}
 
-	return q, http.StatusOK, nil
+	rq := struct {
+		Quote string `json:"quote"`
+		Name  string `json:"name"`
+	}{Quote: q.Body, Name: q.Name}
+	jsonString, err := json.Marshal(rq)
+	if err != nil {
+		log.Printf("could encode json: %v\n", err)
+		return nil, http.StatusInternalServerError, nil
+	}
+
+	resp, err := http.Post("http://img:5000", "application/json", bytes.NewBuffer(jsonString))
+	if err != nil {
+		log.Printf("could not request image: %v\n", err)
+		return nil, http.StatusInternalServerError, nil
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("could read response body: %v\n", err)
+		return nil, http.StatusInternalServerError, nil
+	}
+
+	bodyString := string(body)
+	return bodyString, http.StatusOK, nil
 }
 
 func (h handler) deleteQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {

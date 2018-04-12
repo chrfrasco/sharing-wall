@@ -1,5 +1,14 @@
 version: '3'
 services:
+  img:
+    build:
+      context: ./img
+      args:
+        app_env: ${APP_ENV}
+    volumes:
+      - ./img:/app
+    ports:
+      - 5000:5000
   web:
     build:
       context: ./web
