@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import QuotePreviewWrapper from "./QuotePreviewWrapper";
 import { IS_DEVICE_TOUCHSCREEN } from "../../constants";
 
@@ -26,13 +27,17 @@ function getFontSizeClassName(quote) {
   }
 }
 
+const Spacer = styled.div`
+  height: ${props => props.height || 1}rem;
+`;
+
 export default class QuoteSubmissionForm extends React.Component {
-  state = { quote: "", name: "" };
+  state = { quote: "", name: "", email: "", country: "" };
 
   constructor(props) {
     super(props);
-    this.handleQuoteChange = this.handleQuoteChange.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleFormSubmit = this.handleFormSubmit.bind(this);
   }
 
   render() {
@@ -40,37 +45,111 @@ export default class QuoteSubmissionForm extends React.Component {
       ? "Type your answer below"
       : "Type here";
     return (
-      <form onSubmit={e => e.preventDefault()}>
+      <form onSubmit={this.handleFormSubmit}>
         <QuotePreviewWrapper
           name={this.state.name}
           quote={this.state.quote}
-          handleQuoteChange={this.handleQuoteChange}
+          handleQuoteChange={this.handleInputChange}
           placeholder={textareaPlaceholder}
           styleName={getFontSizeClassName(this.state.quote)}
         />
 
+        <Spacer />
+
         {IS_DEVICE_TOUCHSCREEN ? (
-          <textarea
-            value={this.state.quote}
-            onChange={this.handleQuoteChange}
-            placeholder="What matters to you?"
-          />
+          <FormField>
+            <label htmlFor="form-quote">What matters to you?</label>
+            <textarea
+              required
+              name="quote"
+              id="form-quote"
+              value={this.state.quote}
+              onChange={this.handleInputChange}
+              placeholder="Enter your answer"
+            />
+            <Spacer />
+          </FormField>
         ) : null}
 
-        <input
-          placeholder="Enter your name"
-          value={this.state.name}
-          onChange={this.handleNameChange}
-        />
+        <FormField>
+          <label htmlFor="form-name">Name: </label>
+          <input
+            required
+            autoComplete="name"
+            name="name"
+            id="form-name"
+            placeholder="Enter your name"
+            value={this.state.name}
+            onChange={this.handleInputChange}
+          />
+        </FormField>
+
+        <FormField>
+          <label htmlFor="form-country">Country: </label>
+          <input
+            required
+            name="country"
+            id="form-country"
+            autoComplete="address-level1"
+            placeholder="Enter your country"
+            value={this.state.country}
+            onChange={this.handleInputChange}
+          />
+        </FormField>
+
+        <FormField>
+          <label htmlFor="form-email">Email: </label>
+          <input
+            required
+            name="email"
+            id="form-email"
+            placeholder="Enter your email"
+            value={this.state.email}
+            onChange={this.handleInputChange}
+          />
+        </FormField>
+
+        <input type="submit" value="submit your quote" />
       </form>
     );
   }
 
-  handleQuoteChange(ev) {
-    this.setState({ quote: ev.target.value });
+  handleInputChange(ev) {
+    this.setState({ [ev.target.name]: ev.target.value });
   }
 
-  handleNameChange(ev) {
-    this.setState({ name: ev.target.value });
+  /**
+   *
+   * @param {React.FormEvent} ev
+   */
+  handleFormSubmit(ev) {
+    ev.preventDefault();
+    console.log(this.state);
   }
 }
+
+const FormField = styled.div`
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
+
+  label {
+    font-size: 0.8rem;
+    margin-left: 0.1rem;
+  }
+
+  input,
+  textarea {
+    font-size: inherit;
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+    border: none;
+
+    background-color: rgb(248, 248, 248);
+  }
+
+  textarea {
+    margin-top: 1rem;
+    display: block;
+    width: 100%;
+  }
+`;

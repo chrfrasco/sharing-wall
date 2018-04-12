@@ -20,6 +20,8 @@ injectGlobal`
     font-family: inherit;
     color: inherit;
 
+    resize: none;
+
     &::placeholder {
       opacity: 0.4;
     }
