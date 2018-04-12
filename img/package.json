@@ -1,0 +1,25 @@
+{
+  "name": "sharing-wall-img-create",
+  "version": "0.0.1",
+  "description": "Create images for the Two Hundred Women Sharing Wall",
+  "main": "index.js",
+  "repository": "https://github.com/chrfrasco/sharing-wall-img-create",
+  "author": "Christian Scott <christian@christianfscott.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "nodemon index.js 0.0.0.0 5000"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "morgan": "^1.9.0",
+    "puppeteer": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/puppeteer": "^1.2.1",
+    "browser-sync": "^2.23.6",
+    "eslint": "^4.19.1",
+    "nodemon": "^1.17.3"
+  }
+}

@@ -11,6 +11,9 @@ node_modules/
 # testing
 /coverage
 
+# img
+img/data/
+
 # production
 /build
 
