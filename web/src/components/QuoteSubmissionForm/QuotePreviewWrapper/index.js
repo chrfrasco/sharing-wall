@@ -6,8 +6,11 @@ import "./QuoteFontSizes.css";
 
 const Background = styled.div`
   background-color: #dedede;
-  padding: 1rem;
   font-family: Requiem;
+
+  @media (min-width: 532px) {
+    padding: 1rem;
+  }
 
   & > div:first-child {
     margin: 0 auto;
@@ -20,7 +23,7 @@ const Inner = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  background-color: white;
+  background-color: papayawhip;
   padding: 1rem;
 
   textarea {
@@ -38,6 +41,10 @@ const Inner = styled.div`
 
     &:focus {
       outline: none;
+    }
+
+    &:disabled {
+      opacity: 1;
     }
   }
 `;
@@ -85,19 +92,21 @@ export default class QuotePreviewWrapper extends React.Component {
 
             <div style={{ flex: 1 }}>
               <textarea
+                name="quote"
                 ref={this.textArea}
                 value={quote}
                 onChange={handleQuoteChange}
                 className={styleName}
                 placeholder={placeholder}
                 readOnly={IS_DEVICE_TOUCHSCREEN}
+                disabled={IS_DEVICE_TOUCHSCREEN}
                 maxLength={280}
               />
             </div>
 
             <Row>
               <NameSpan isBlank={name === ""}>
-                {name === "" ? "Enter your name below" : name}
+                {name === "" ? "Enter name below" : name}
               </NameSpan>
               <span>Two Hundred Women</span>
             </Row>
