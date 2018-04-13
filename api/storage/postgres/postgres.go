@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"time"
 
@@ -110,23 +109,23 @@ func (p *postgres) Close() {
 	p.db.Close()
 }
 
-func (p *postgres) GetPassHash(user string) (string, error) {
+func (p *postgres) GetPassHash(user string) (*string, error) {
 	query := `SELECT u.hash FROM "user" u WHERE u.username = $1`
 	rows, err := p.db.Query(query, user)
 	if err != nil {
-		return "", fmt.Errorf("could not get hash: %v", err)
+		return nil, fmt.Errorf("could not get hash: %v", err)
 	}
 	if !rows.Next() {
-		return "", errors.New("no such user")
+		return nil, nil
 	}
 
 	var hash string
 	err = rows.Scan(&hash)
 	if err != nil {
-		return "", fmt.Errorf("could not scan: %v", err)
+		return nil, fmt.Errorf("could not scan: %v", err)
 	}
 
-	return hash, nil
+	return &hash, nil
 }
 
 func (p *postgres) GetQuote(qID string) (*storage.Quote, error) {

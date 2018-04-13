@@ -36,8 +36,8 @@ func New(svc storage.Service) http.Handler {
 
 var authFailedMessage = "not authorized"
 
-func authResponseHandler(svc storage.Service, h handleFunc) http.HandlerFunc {
-	return responseHandler(func(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (h handler) authResponseHandler(hf handleFunc) handleFunc {
+	return func(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 		w.Header().Set("WWW-Authenticate", `Basic Realm="Restricted"`)
 		user, pass, ok := r.BasicAuth()
 		if ok == false {
@@ -45,18 +45,23 @@ func authResponseHandler(svc storage.Service, h handleFunc) http.HandlerFunc {
 			return nil, http.StatusUnauthorized, errors.New(authFailedMessage)
 		}
 
-		hash, err := svc.GetPassHash(user)
+		hash, err := h.svc.GetPassHash(user)
 		if err != nil {
-			log.Printf(red("failed to get hash %v"), err)
+			log.Printf(red("failed to get hash: %v"), err)
 			return nil, http.StatusInternalServerError, nil
 		}
-		if err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass)); err != nil {
+		if hash == nil {
+			log.Print(red("no such user"))
+			return nil, http.StatusUnauthorized, errors.New(authFailedMessage)
+		}
+
+		if err = bcrypt.CompareHashAndPassword([]byte(*hash), []byte(pass)); err != nil {
 			log.Printf(red("bad password %v"), pass)
 			return nil, http.StatusUnauthorized, errors.New(authFailedMessage)
 		}
 
-		return h(w, r)
-	})
+		return hf(w, r)
+	}
 }
 
 func responseHandler(h func(http.ResponseWriter, *http.Request) (interface{}, int, error)) http.HandlerFunc {
