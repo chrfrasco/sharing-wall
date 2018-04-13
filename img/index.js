@@ -36,8 +36,8 @@ async function handle(req, res, { quote = null, name = null }) {
   }
 
   const imgBuf = await renderer.quote({ quote, name });
-  const img = `data:image/png;base64,${imgBuf.toString("base64")}`;
-  res.status(200).send(img);
+  const png = `data:image/png;base64,${imgBuf.toString("base64")}`;
+  res.status(200).send({ png });
 }
 
 app.get("/", async (req, res) => {
@@ -59,11 +59,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ msg: "something went wrong" });
 });
 
-createRenderer()
-  .then(createdRenderer => {
-    renderer = createdRenderer;
+(async () => {
+  try {
+    renderer = await createRenderer();
+    await renderer.initPage();
+
     // eslint-disable-next-line no-console
     app.listen(port, () => console.log(`app is listening on :${port}`));
-  })
-  // eslint-disable-next-line no-console
-  .catch(e => console.error(`failed to init browser: ${e}`));
+  } catch (e) {
+    console.error(`failed to init browser: ${e}`);
+    process.exit(1);
+  }
+})();

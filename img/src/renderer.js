@@ -7,12 +7,20 @@ class Renderer {
     this.browser = browser;
   }
 
-  async quote({ quote, name }) {
-    const page = await this.browser.newPage();
-    await page.setViewport({ width: 1000, height: 1000 });
+  async initPage() {
+    try {
+      this.page = await this.browser.newPage();
+      this.page.setViewport({ width: 1000, height: 1000 });
+    } catch (e) {
+      throw e;
+    }
+  }
 
-    await page.goto(`file://${path.join(__dirname, "../template/index.html")}`);
-    await page.evaluate(
+  async quote({ quote, name }) {
+    await this.page.goto(
+      `file://${path.join(__dirname, "../template/index.html")}`
+    );
+    await this.page.evaluate(
       ({ quote, name }) => {
         /* eslint-disable no-undef */
         const quoteBody = document.querySelector("#quote-body");
@@ -26,7 +34,7 @@ class Renderer {
       { quote, name }
     );
 
-    return await page.screenshot({ fullPage: true });
+    return await this.page.screenshot({ fullPage: true });
   }
 }
 
