@@ -178,15 +178,16 @@ func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 }
 
 // AddQuote persists a quote to the database
-func (p postgres) AddQuote(qt storage.Quote) error {
-	q := `INSERT INTO "quote" (body, fullname, email, country, img, quoteID)
+func (p postgres) AddQuote(q storage.Quote) (*storage.Quote, error) {
+	q.QuoteID = genQuoteID()
+	query := `INSERT INTO "quote" (body, fullname, email, country, img, quoteID)
 	VALUES ($1, $2, $3, $4, $5, $6);`
-	_, err := p.db.Exec(q, qt.Body, qt.Name, qt.Email, qt.Country, qt.Img, genQuoteID())
+	_, err := p.db.Exec(query, q.Body, q.Name, q.Email, q.Country, q.Img, q.QuoteID)
 	if err != nil {
-		return fmt.Errorf("could not insert: %v", err)
+		return nil, fmt.Errorf("could not insert: %v", err)
 	}
 
-	return nil
+	return &q, nil
 }
 
 func (p postgres) DeleteQuote(qID string) error {
