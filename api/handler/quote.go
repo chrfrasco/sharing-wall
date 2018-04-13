@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -20,7 +21,7 @@ func (h handler) quote(w http.ResponseWriter, r *http.Request) (interface{}, int
 	}
 
 	if r.Method == http.MethodDelete {
-		return h.deleteQuote(w, r)
+		return h.authResponseHandler(h.deleteQuote)(w, r)
 	}
 
 	return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
@@ -65,23 +66,16 @@ func (h handler) getQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 // 	-> 200 OK { ..., "quoteID": "...", "img": "http://some.storage.service" }
 //
 func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	var input struct{ Name, Email, Body, Country string }
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+	cq, err := fromRequest(r)
+	if err != nil {
 		return nil, http.StatusBadRequest, fmt.Errorf("unable to decode JSON request body: %v", err)
 	}
 
-	var q storage.Quote
-	q.Name = strings.TrimSpace(input.Name)
-	q.Email = strings.TrimSpace(input.Email)
-	q.Body = strings.TrimSpace(input.Body)
-	q.Country = strings.TrimSpace(input.Country)
-
-	for _, s := range []string{q.Name, q.Email, q.Body, q.Country} {
-		if s == "" {
-			return nil, http.StatusBadRequest, fmt.Errorf("all of name, email, body, country must be set")
-		}
+	if valid, reason := cq.validate(); !valid {
+		return nil, http.StatusBadRequest, errors.New(reason)
 	}
 
+	q := cq.toQuote()
 	qp, err := h.svc.AddQuote(q)
 	if err != nil {
 		log.Printf("could not add to database: %v\n", err)
