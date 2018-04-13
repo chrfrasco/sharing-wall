@@ -1,47 +1,63 @@
+import { IS_PRODUCTION } from "./constants";
+
 export const states = {
   LOADING: Symbol("LOADING"),
   LOADED: Symbol("LOADED"),
-  ERROR: Symbol("ERROR")
+  ERROR: Symbol("ERROR"),
+  NOT_FOUND: Symbol("NOT_FOUND"),
+  NOT_STARTED: Symbol("NOT_STARTED")
 };
 
 export default {
+  getQuote(quoteID) {
+    return get(`/api/quote?quoteID=${quoteID}`);
+  },
+
   getQuotes() {
-    return get("/api/quotes")
-      .then(res => res.json())
-      .then(({ quotes }) => quotes);
+    return get("/api/quotes");
   },
 
   getMessage() {
-    return get("/api/message").then(r => r.text());
+    return get("/api/message");
   },
 
   postQuote(quote) {
-    return post("/api/quote", quote).then(r => r.json());
+    return post("/api/quote", quote);
   }
 };
 
 function get(path) {
-  return fetch(path).then(checkOK);
+  return request(path);
 }
 
 function post(path, data) {
-  return fetch(path, {
+  return request(path, {
     body: JSON.stringify(data),
     headers: {
       "content-type": "application/json"
     },
     method: "POST"
-  }).then(checkOK);
+  });
 }
 
-/**
- *
- * @param {Response} r
- */
+function request(...args) {
+  return fetch(...args)
+    .then(logResponse)
+    .then(checkOK)
+    .then(r => r.json());
+}
+
+function logResponse(r) {
+  if (!IS_PRODUCTION) {
+    console.log(`${r.url}: ${r.status} ${r.statusText}`);
+  }
+  return r;
+}
+
 function checkOK(r) {
-  if (r.ok) {
+  if (200 <= r.status && r.status < 300) {
     return r;
   }
 
-  throw new Error("server says: " + r.statusText);
+  throw new Error(`${r.status} ${r.statusText}`);
 }

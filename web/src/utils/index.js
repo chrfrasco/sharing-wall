@@ -1,3 +1,29 @@
+import api from "../api";
+
+/**
+ * @param {object} quote
+ */
+export function storeQuote(quote) {
+  if (!quote.quoteID) {
+    throw new TypeError("property `quoteID` missing on quote");
+  }
+  localStorage.setItem(quote.quoteID, JSON.stringify(quote));
+}
+
+/**
+ * @param {string} quoteID
+ */
+export async function retrieveQuote(quoteID) {
+  const quoteStr = localStorage.getItem(quoteID);
+  if (quoteStr != null) {
+    const quote = JSON.parse(quoteStr);
+    return quote;
+  }
+
+  const quote = await api.getQuote(quoteID);
+  return quote;
+}
+
 /**
  * Strip single quotes from a string
  *

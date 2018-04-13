@@ -1,9 +1,9 @@
 import React from "react";
 import { Redirect } from "react-router";
-import styled from "styled-components";
 import QuotePreviewWrapper from "./QuotePreviewWrapper";
-import { IS_DEVICE_TOUCHSCREEN } from "../../constants";
-import api from "../../api";
+import { FormField, Spacer } from "../elements";
+import { IS_DEVICE_TOUCHSCREEN, IS_PRODUCTION } from "../../constants";
+import api, { states } from "../../api";
 
 const fontSizeClassNames = {
   sml: "quote-font--sml",
@@ -29,12 +29,33 @@ function getFontSizeClassName(quote) {
   }
 }
 
-const Spacer = styled.div`
-  height: ${props => props.height || 1}rem;
-`;
+function getQuoteFromState({ quote, name, email, country }) {
+  return {
+    body: quote,
+    name,
+    email,
+    country
+  };
+}
+
+const initialState = IS_PRODUCTION
+  ? {
+      loadingState: states.NOT_STARTED,
+      quote: "",
+      name: "",
+      email: "",
+      country: ""
+    }
+  : {
+      loadingState: states.NOT_STARTED,
+      quote: "Treating others as I would have them treat me.",
+      name: "Christian Scott",
+      email: "christianfscott@gmail.com",
+      country: "New Zealand"
+    };
 
 export default class QuoteSubmissionForm extends React.Component {
-  state = { quote: "", name: "", email: "", country: "" };
+  state = initialState;
 
   constructor(props) {
     super(props);
@@ -43,10 +64,23 @@ export default class QuoteSubmissionForm extends React.Component {
   }
 
   render() {
-    if (this.state.redirect) {
-      return <Redirect to="/thanks" />;
+    switch (this.state.loadingState) {
+      case states.LOADED:
+        return <Redirect to={`/quote/${this.state.quoteID}`} />;
+      case states.NOT_STARTED:
+        return this.renderForm();
+      case states.LOADING:
+        return <h1>Submitting...</h1>;
+      case states.ERROR:
+        return <Redirect to="/error" />;
+      default:
+        throw new Error(
+          `loadingState ${this.state.loadingState.toString()} not handled`
+        );
     }
+  }
 
+  renderForm() {
     const textareaPlaceholder = IS_DEVICE_TOUCHSCREEN
       ? "Type your answer below"
       : "Type here";
@@ -126,50 +160,19 @@ export default class QuoteSubmissionForm extends React.Component {
   }
 
   /**
-   *
    * @param {React.FormEvent} ev
    */
-  handleFormSubmit(ev) {
+  async handleFormSubmit(ev) {
     ev.preventDefault();
-    api
-      .postQuote(this.getQuoteFromState())
-      .then(q => this.setState({ redirect: true }))
-      .catch(err => console.error(err));
-  }
 
-  getQuoteFromState() {
-    const { quote, name, email, country } = this.state;
-    return {
-      body: quote,
-      name,
-      email,
-      country
-    };
+    this.setState({ loadingState: states.LOADING });
+
+    try {
+      const quote = getQuoteFromState(this.state);
+      const updatedQuote = await api.postQuote(quote);
+      this.setState({ loadingState: states.LOADED, ...updatedQuote });
+    } catch (e) {
+      this.setState({ loadingState: states.ERROR });
+    }
   }
 }
-
-const FormField = styled.div`
-  font-size: 1rem;
-  margin-bottom: 0.4rem;
-
-  label {
-    font-size: 0.8rem;
-    margin-left: 0.1rem;
-  }
-
-  input,
-  textarea {
-    font-size: inherit;
-    padding-left: 0.1rem;
-    padding-right: 0.1rem;
-    border: none;
-
-    background-color: rgb(248, 248, 248);
-  }
-
-  textarea {
-    margin-top: 1rem;
-    display: block;
-    width: 100%;
-  }
-`;
