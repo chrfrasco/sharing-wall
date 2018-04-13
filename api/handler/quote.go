@@ -7,11 +7,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
-
-	"github.com/chrfrasco/sharing-wall/api/storage"
 )
 
+// top-level quote handler passes on requests to other handlers based on the request method
 func (h handler) quote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	if r.Method == http.MethodGet {
 		return h.getQuote(w, r)
@@ -28,6 +26,15 @@ func (h handler) quote(w http.ResponseWriter, r *http.Request) (interface{}, int
 	return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
 }
 
+// getQuote tries to return a quote matching the supplied quoteID url param. If no matching quote
+// is found, return 404
+//
+// GET /api/quote?quoteID=foobar3000
+// 	-> 404 could not find quote foobar3000
+//
+// GET /api/quote?quoteID=foobar3001
+//      -> 200 OK { ... }
+//
 func (h handler) getQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	quoteID := r.URL.Query().Get("quoteID")
 	if quoteID == "" {
@@ -46,6 +53,17 @@ func (h handler) getQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 	return quote, http.StatusOK, nil
 }
 
+// addQuote handles a post request and attempts to add it to the database. If the request body
+// is valid and the INSERT succeeds, the image generation service is queried and the resulting
+// png is stored. The client is returned a new "quote" object with additional quoteID and img (url)
+// properties.
+//
+// POST /api/quote {}
+// 	-> 400 BAD REQUEST all of name, email, body, country must be set
+//
+// POST /api/quote { "name": "...", "email": "...", "body": "...", "country": "..." }
+// 	-> 200 OK { ..., "quoteID": "...", "img": "http://some.storage.service" }
+//
 func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	var input struct{ Name, Email, Body, Country string }
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -108,6 +126,7 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 	return q, http.StatusOK, nil
 }
 
+// deleteQuote removes a quote from the database. This route should be authenticated.
 func (h handler) deleteQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	var input struct {
 		QuoteID  string
