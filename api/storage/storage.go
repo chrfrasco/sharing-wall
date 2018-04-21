@@ -1,5 +1,7 @@
 package storage
 
+import "errors"
+
 // Service provides a RDBMS-agnostic storage interface
 type Service interface {
 	GetPassHash(user string) (*string, error)
@@ -19,3 +21,6 @@ type Quote struct {
 	Img     string `json:"img"`
 	QuoteID string `json:"quoteID"`
 }
+
+// ErrDuplicateKey signals that the supplied QuoteID already exists in the database
+var ErrDuplicateKey = errors.New("QuoteID already exists")

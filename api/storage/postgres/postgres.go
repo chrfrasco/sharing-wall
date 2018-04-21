@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	// postgres drivers
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 
 	"github.com/chrfrasco/sharing-wall/api/storage"
 )
@@ -18,16 +18,14 @@ type postgres struct {
 }
 
 func connectWithTimeout(conn string, timeout time.Duration) (*sql.DB, error) {
-	var err error
-	dbChan, criticalErrs := make(chan *sql.DB, 1), make(chan error, 1)
+	db, err := sql.Open("postgres", conn)
+	if err != nil {
+		return nil, err
+	}
+
+	dbChan := make(chan *sql.DB, 1)
 	go func() {
 		for {
-			db, err := sql.Open("postgres", conn)
-			if err != nil {
-				criticalErrs <- err
-				return
-			}
-
 			err = db.Ping()
 			if err == nil && db != nil {
 				dbChan <- db
@@ -41,8 +39,6 @@ func connectWithTimeout(conn string, timeout time.Duration) (*sql.DB, error) {
 	select {
 	case db := <-dbChan:
 		return db, nil
-	case err = <-criticalErrs:
-		return nil, err
 	case <-time.After(timeout):
 		return nil, fmt.Errorf("timeout: %v", err)
 	}
@@ -66,7 +62,7 @@ func New(conn string) (storage.Service, error) {
 	  email    TEXT NOT NULL,
 	  country  TEXT NOT NULL,
 	  img      TEXT NOT NULL,
-	  quoteID  TEXT NOT NULL
+	  quoteID  TEXT NOT NULL UNIQUE
 	);
 
 	CREATE TABLE "user" (
@@ -82,9 +78,9 @@ func New(conn string) (storage.Service, error) {
 
 	query = `
 	INSERT INTO "quote" (body, fullname, email, country, img, quoteID)
-	VALUES ('I am not a rapper', 'Christian Scott', 'New Zealand', 'mail@mail.com', 'https://foo.com/pic', $1);
+	VALUES ('I am not a rapper', 'Christian Scott', 'New Zealand', 'mail@mail.com', 'https://foo.com/pic', 'foobar3000');
 	`
-	_, err = db.Exec(query, genQuoteID())
+	_, err = db.Exec(query)
 	if err != nil {
 		return nil, err
 	}
@@ -138,11 +134,8 @@ func (p *postgres) GetQuote(qID string) (*storage.Quote, error) {
 		return nil, fmt.Errorf("could not get quote: %v", err)
 	}
 
-	if !rows.Next() {
-		return nil, nil
-	}
-
 	var q storage.Quote
+	rows.Next()
 	err = rows.Scan(&q.Body, &q.Name, &q.Email, &q.Country, &q.Img, &q.QuoteID)
 	if err != nil {
 		return nil, fmt.Errorf("could not scan: %v", err)
@@ -178,10 +171,15 @@ func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 
 // AddQuote persists a quote to the database
 func (p postgres) AddQuote(q storage.Quote) (*storage.Quote, error) {
-	q.QuoteID = genQuoteID()
 	query := `INSERT INTO "quote" (body, fullname, email, country, img, quoteID)
 	VALUES ($1, $2, $3, $4, $5, $6);`
+
 	_, err := p.db.Exec(query, q.Body, q.Name, q.Email, q.Country, q.Img, q.QuoteID)
+	if pgerr, ok := err.(*pq.Error); ok {
+		if pgerr.Code == "23505" {
+			return nil, storage.ErrDuplicateKey
+		}
+	}
 	if err != nil {
 		return nil, fmt.Errorf("could not insert: %v", err)
 	}
@@ -197,11 +195,4 @@ func (p postgres) DeleteQuote(qID string) error {
 	}
 
 	return nil
-}
-
-var i = 3000
-
-func genQuoteID() string {
-	i++
-	return fmt.Sprintf("foobar%d", i)
 }

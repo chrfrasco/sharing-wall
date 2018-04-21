@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/chrfrasco/sharing-wall/api/storage"
 )
 
 // top-level quote handler passes on requests to other handlers based on the request method
@@ -75,13 +77,20 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 		return nil, http.StatusBadRequest, errors.New(reason)
 	}
 
-	q := cq.toQuote()
+	var q storage.Quote
+	for {
+		q = cq.toQuote()
 	qp, err := h.svc.AddQuote(q)
+		if err == storage.ErrDuplicateKey {
+			continue
+		}
 	if err != nil {
 		log.Printf("could not add to database: %v\n", err)
 		return nil, http.StatusInternalServerError, nil
 	}
 	q = *qp
+		break
+	}
 
 	rq := struct {
 		Quote string `json:"quote"`
