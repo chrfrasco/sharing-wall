@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -68,7 +69,7 @@ func (h handler) getQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 // 	-> 200 OK { ..., "quoteID": "...", "img": "http://some.storage.service" }
 //
 func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-	cq, err := fromRequest(r)
+	cq, err := clientQuoteFromRequest(r)
 	if err != nil {
 		return nil, http.StatusBadRequest, fmt.Errorf("unable to decode JSON request body: %v", err)
 	}
@@ -80,15 +81,15 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 	var q storage.Quote
 	for {
 		q = cq.toQuote()
-	qp, err := h.svc.AddQuote(q)
+		qp, err := h.svc.AddQuote(q)
 		if err == storage.ErrDuplicateKey {
 			continue
 		}
-	if err != nil {
-		log.Printf("could not add to database: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
-	}
-	q = *qp
+		if err != nil {
+			log.Printf("could not add to database: %v\n", err)
+			return nil, http.StatusInternalServerError, nil
+		}
+		q = *qp
 		break
 	}
 
@@ -124,7 +125,20 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 		log.Printf("could not unmarshal img response: %v\n", err)
 		return nil, http.StatusInternalServerError, nil
 	}
-	q.Img = res.Png
+
+	imgBytes, err := base64.StdEncoding.DecodeString(res.Png)
+	if err != nil {
+		log.Printf("could not decode response: %v\n", err)
+		return nil, http.StatusInternalServerError, nil
+	}
+
+	err = h.up.Upload(q.QuoteID+".png", imgBytes)
+	if err != nil {
+		log.Printf("could not upload image: %v\n", err)
+		return nil, http.StatusInternalServerError, nil
+	}
+
+	q.Img = fmt.Sprintf("https://s3-ap-southeast-2.amazonaws.com/sharing-wall/%s.png", q.QuoteID)
 
 	return q, http.StatusOK, nil
 }

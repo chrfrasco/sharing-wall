@@ -36,7 +36,7 @@ async function handle(req, res, { quote = null, name = null }) {
   }
 
   const imgBuf = await renderer.quote({ quote, name });
-  const png = `data:image/png;base64,${imgBuf.toString("base64")}`;
+  const png = imgBuf.toString("base64");
   res.status(200).send({ png });
 }
 

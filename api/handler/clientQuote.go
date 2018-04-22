@@ -1,10 +1,9 @@
 package handler
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"strings"
 
@@ -15,7 +14,7 @@ type clientQuote struct {
 	Name, Email, Body, Country string
 }
 
-func fromRequest(r *http.Request) (*clientQuote, error) {
+func clientQuoteFromRequest(r *http.Request) (*clientQuote, error) {
 	var cq clientQuote
 	if err := json.NewDecoder(r.Body).Decode(&cq); err != nil {
 		return nil, fmt.Errorf("unable to decode JSON request body: %v", err)
@@ -58,16 +57,16 @@ func (cq clientQuote) toQuote() storage.Quote {
 	q.Email = strings.TrimSpace(cq.Email)
 	q.Body = strings.TrimSpace(cq.Body)
 	q.Country = strings.TrimSpace(cq.Country)
-	q.QuoteID, _ = genRandomString(16)
+	q.QuoteID = genRandomString(16)
 	return q
 }
 
-func genRandomString(n int) (string, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-	return base64.URLEncoding.EncodeToString(b), err
+func genRandomString(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }

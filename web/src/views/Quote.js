@@ -16,13 +16,16 @@ export default class Quote extends React.Component {
       case states.LOADING:
         return <h1>Loading...</h1>;
       case states.LOADED:
+        const src = `https://s3-ap-southeast-2.amazonaws.com/sharing-wall/${
+          this.state.quote.quoteID
+        }.png`;
         return (
           <article>
             <h1>Quote by {this.state.quote.name}</h1>
             <p>They said "{this.state.quote.body}"</p>
             <img
               style={{ width: "100%" }}
-              src={this.state.quote.img}
+              src={src}
               alt={`Quote by ${this.state.quote.name}`}
             />
           </article>

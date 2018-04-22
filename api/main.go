@@ -13,6 +13,7 @@ import (
 
 	"github.com/chrfrasco/sharing-wall/api/handler"
 	"github.com/chrfrasco/sharing-wall/api/storage/postgres"
+	"github.com/chrfrasco/sharing-wall/api/upload/amazons3"
 )
 
 var cyan = color.New(color.FgCyan).SprintFunc()
@@ -29,10 +30,15 @@ func main() {
 	}
 	defer svc.Close()
 
+	as3, err := amazons3.New(os.Getenv("AWS_ACCESS"), os.Getenv("AWS_SECRET"), os.Getenv("AWS_BUCKET"))
+	if err != nil {
+		fatalf("could not init S3 connection: %v\n", err)
+	}
+
 	addr := fmt.Sprintf("%s:%s", os.Getenv("SV_HOST"), os.Getenv("SV_PORT"))
 	server := http.Server{
 		Addr:    addr,
-		Handler: handler.New(svc),
+		Handler: handler.New(svc, as3),
 	}
 
 	go func() {
