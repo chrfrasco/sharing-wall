@@ -1,7 +1,9 @@
 import { injectGlobal } from "styled-components";
 
 injectGlobal`
-  *, *:after, *:before {
+  *,
+  *::after,
+  *::before {
     box-sizing: inherit;
   }
 
@@ -11,8 +13,9 @@ injectGlobal`
 
     color: #333333;
     -webkit-font-smoothing: antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
-      sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    font-family: "Whitney SSm A", "Whitney SSm B";
+    font-style: normal;
+    font-weight: 300;
   }
 
   input,

@@ -6,7 +6,9 @@ import "./QuoteFontSizes.css";
 
 const Background = styled.div`
   background-color: #dedede;
-  font-family: Requiem;
+  font-family: "Requiem Display A", "Requiem Display B";
+  font-style: normal;
+  font-weight: 400;
 
   @media (min-width: 532px) {
     padding: 1rem;
