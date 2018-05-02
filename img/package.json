@@ -7,8 +7,12 @@
   "author": "Christian Scott <christian@christianfscott.com>",
   "license": "MIT",
   "private": false,
+  "engines": {
+    "node": "8.11.1"
+  },
   "scripts": {
-    "start": "nodemon index.js 0.0.0.0 5000"
+    "start": "nodemon index.js 0.0.0.0 5000",
+    "server": "node index.js"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
