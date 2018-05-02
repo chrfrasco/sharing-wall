@@ -36,9 +36,10 @@ func main() {
 	}
 
 	addr := fmt.Sprintf("%s:%s", os.Getenv("SV_HOST"), os.Getenv("SV_PORT"))
+	imgURL := os.Getenv("IMG_URL")
 	server := http.Server{
 		Addr:    addr,
-		Handler: handler.New(svc, as3),
+		Handler: handler.New(svc, as3, imgURL),
 	}
 
 	go func() {

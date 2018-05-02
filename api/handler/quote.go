@@ -121,7 +121,7 @@ func (h handler) generateAndUploadImageForQuote(q storage.Quote) error {
 		return fmt.Errorf("could encode json: %v", err)
 	}
 
-	imgResp, err := http.Post("http://img:5000", "application/json", bytes.NewBuffer(jsonString))
+	imgResp, err := http.Post(h.imgURL, "application/json", bytes.NewBuffer(jsonString))
 	if err != nil {
 		return fmt.Errorf("could not request image: %v", err)
 	}
