@@ -1,7 +1,8 @@
 import React from "react";
 import { QuoteView as Quote } from "./Quote";
 import { states } from "../api";
-import { Grid, GridItem, Spinner } from "./elements";
+import { Grid, GridItem, Spinner, QuoteBackground } from "./elements";
+import Modal from "./Modal";
 
 export default function QuoteList({ quotes, loadState }) {
   switch (loadState) {
@@ -14,14 +15,32 @@ export default function QuoteList({ quotes, loadState }) {
   }
 }
 
+function QuoteListItem({ quote }) {
+  return (
+    <Modal>
+      <Modal.Toggle>
+        {openModal => (
+          <GridItem onClick={openModal}>
+            <Quote quote={quote} />
+          </GridItem>
+        )}
+      </Modal.Toggle>
+
+      <Modal.Body>
+        {() => (
+          <QuoteBackground>
+            <Quote quote={quote} />
+          </QuoteBackground>
+        )}
+      </Modal.Body>
+    </Modal>
+  );
+}
+
 export function QuoteListView({ quotes }) {
   return (
     <Grid>
-      {quotes.map(quote => (
-        <GridItem key={quote.quoteID}>
-          <Quote quote={quote} />
-        </GridItem>
-      ))}
+      {quotes.map(quote => <QuoteListItem key={quote.quoteID} quote={quote} />)}
     </Grid>
   );
 }
