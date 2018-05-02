@@ -57,11 +57,16 @@ func (cq clientQuote) toQuote() storage.Quote {
 	q.Email = strings.TrimSpace(cq.Email)
 	q.Body = strings.TrimSpace(cq.Body)
 	q.Country = strings.TrimSpace(cq.Country)
-	q.QuoteID = genRandomString(16)
+	q.QuoteID = GenQuoteID()
 	return q
 }
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+// GenQuoteID generates a (probably) unique id for a quote
+func GenQuoteID() string {
+	return genRandomString(16)
+}
 
 func genRandomString(n int) string {
 	b := make([]byte, n)
