@@ -1,9 +1,9 @@
 import React from "react";
-import Quote from "./Quote";
+import { QuoteView as Quote } from "./Quote";
 import api, { states } from "../api";
 import styled from "styled-components";
 
-const QuoteGrid = styled.div`
+const Grid = styled.div`
   width: 100%;
   display: flex;
   flex-wrap: wrap;
@@ -22,7 +22,7 @@ const QuoteGrid = styled.div`
   }
 `;
 
-const QuoteGridItem = styled.div`
+const GridItem = styled.div`
   position: relative;
 
   @media (max-width: 599px) {
@@ -59,13 +59,13 @@ export default class QuoteList extends React.Component {
         return "loading...";
       case states.LOADED:
         return (
-          <QuoteGrid>
+          <Grid>
             {this.state.quotes.map(quote => (
-              <QuoteGridItem key={quote.quoteID}>
-                {Quote.renderQuote(quote)}
-              </QuoteGridItem>
+              <GridItem key={quote.quoteID}>
+                <Quote quote={quote} />
+              </GridItem>
             ))}
-          </QuoteGrid>
+          </Grid>
         );
       case states.ERROR:
         return "error";

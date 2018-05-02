@@ -1,61 +1,44 @@
 import React from "react";
-import { retrieveQuote } from "../utils";
+import { Redirect } from "react-router";
 import { states, NotFoundError } from "../api";
 import { FixedAspectRatio } from "./elements";
 
-export default class Quote extends React.Component {
-  state = { loadingState: states.LOADING };
-
-  componentDidMount() {
-    this.doFetch();
+export default function QuoteLoader({ quote, loadingState }) {
+  switch (loadingState) {
+    case states.LOADING:
+      return <LoadingView />;
+    case states.NOT_FOUND:
+      return <NotFoundView />;
+    case states.ERROR:
+      return <ErrorView />;
+    default:
+      return <QuoteView quote={quote} />;
   }
+}
 
-  render() {
-    switch (this.state.loadingState) {
-      case states.LOADING:
-        return <FixedAspectRatio w={1} h={1} />;
-      case states.LOADED:
-        return Quote.renderQuote(this.state.quote);
-      case states.NOT_FOUND:
-        return <h1>Could not find quote</h1>;
-      case states.ERROR:
-        return <h1>Oops, something went wrong.</h1>;
-      default:
-        throw new Error(`loadingState ${this.state.loadingState} not valid`);
-    }
-  }
+export function LoadingView() {
+  return <FixedAspectRatio w={1} h={1} />;
+}
 
-  static renderQuote(quote) {
-    const src = `https://s3-ap-southeast-2.amazonaws.com/sharing-wall/${
-      quote.quoteID
-    }.png`;
-    return (
-      <FixedAspectRatio w={1} h={1}>
-        <img
-          style={{ maxWidth: "100%", display: "block" }}
-          src={src}
-          alt={`Quote by ${quote.name}`}
-        />
-      </FixedAspectRatio>
-    );
-  }
+export function NotFoundView() {
+  return <h1>Couldn't find that quote</h1>;
+}
 
-  async doFetch() {
-    const { quoteID } = this.props;
-    try {
-      const quote = await retrieveQuote(quoteID);
-      this.setState({ quote, loadingState: states.LOADED });
-    } catch (e) {
-      this.handleFetchError(e);
-    }
-  }
+export function ErrorView() {
+  return <Redirect to="/error" />;
+}
 
-  handleFetchError(e) {
-    if (e instanceof NotFoundError) {
-      this.setState({ loadingState: states.NOT_FOUND });
-      return;
-    }
-
-    this.setState({ loadingState: states.ERROR });
-  }
+export function QuoteView({ quote }) {
+  const src = `https://s3-ap-southeast-2.amazonaws.com/sharing-wall/${
+    quote.quoteID
+  }.png`;
+  return (
+    <FixedAspectRatio w={1} h={1}>
+      <img
+        style={{ maxWidth: "100%", display: "block" }}
+        src={src}
+        alt={`Quote by ${quote.name}`}
+      />
+    </FixedAspectRatio>
+  );
 }
