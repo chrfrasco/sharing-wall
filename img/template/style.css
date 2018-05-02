@@ -72,6 +72,16 @@ p {
 
 .quote__body {
   flex: 1;
+}
 
-  font-size: 3.2rem;
+.quote-font--lge {
+  font-size: 3.2rem !important;
+}
+
+.quote-font--med {
+  font-size: 2.4rem !important; 
+}
+
+.quote-font--sml {
+  font-size: 1.6rem !important;
 }

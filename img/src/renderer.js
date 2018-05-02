@@ -2,6 +2,30 @@
 const path = require("path");
 const puppeteer = require("puppeteer");
 
+const fontSizeClassNames = {
+  sml: "quote-font--sml",
+  med: "quote-font--med",
+  lge: "quote-font--lge"
+};
+
+/**
+ * Get the font size class name for the
+ * current quote string length.
+ *
+ * @param {string} quote
+ * @returns {string}
+ */
+function getFontSizeClassName(quote) {
+  const charCount = quote.length;
+  if (charCount < 65) {
+    return fontSizeClassNames.lge;
+  } else if (charCount < 100) {
+    return fontSizeClassNames.med;
+  } else {
+    return fontSizeClassNames.sml;
+  }
+}
+
 class Renderer {
   constructor(browser) {
     this.browser = browser;
@@ -20,18 +44,20 @@ class Renderer {
     await this.page.goto(
       `file://${path.join(__dirname, "../template/index.html")}`
     );
+
+    const className = getFontSizeClassName(quote);
     await this.page.evaluate(
-      ({ quote, name }) => {
+      ({ quote, name, className }) => {
         /* eslint-disable no-undef */
         const quoteBody = document.querySelector("#quote-body");
-        const quoteBodyOuter = document.querySelector("#quote-body-outer");
         const quoteName = document.querySelector("#quote-name");
         /* eslint-enable no-undef */
 
         quoteBody.innerHTML = `&lsquo;${quote}&rsquo;`;
+        quoteBody.classList.add(className);
         quoteName.innerHTML = name;
       },
-      { quote, name }
+      { quote, name, className }
     );
 
     return await this.page.screenshot({ fullPage: true });
