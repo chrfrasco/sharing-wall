@@ -38,9 +38,17 @@ func New(svc storage.Service, up upload.Uploader, imgURL string) http.Handler {
 	return mux
 }
 
-var authFailedMessage = "not authorized"
+// handleInternalError logs the error (with context) and returns a clean 500
+// response to the client
+func handleInternalError(err error, message string) (interface{}, int, error) {
+	log.Printf(red("%s: %v\n"), message, err)
+	return nil, http.StatusInternalServerError, nil
+}
 
+// authResponseHandler wraps a route, forcing that route to be authenticated
 func (h handler) authResponseHandler(hf handleFunc) handleFunc {
+	authFailedMessage := "not authorized"
+
 	return func(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 		w.Header().Set("WWW-Authenticate", `Basic Realm="Restricted"`)
 		user, pass, ok := r.BasicAuth()
@@ -51,8 +59,7 @@ func (h handler) authResponseHandler(hf handleFunc) handleFunc {
 
 		hash, err := h.svc.GetPassHash(user)
 		if err != nil {
-			log.Printf(red("failed to get hash: %v"), err)
-			return nil, http.StatusInternalServerError, nil
+			return handleInternalError(err, red("failed to get hash"))
 		}
 		if hash == nil {
 			log.Print(red("no such user"))
@@ -68,6 +75,9 @@ func (h handler) authResponseHandler(hf handleFunc) handleFunc {
 	}
 }
 
+// responseHandler is a HOF wraps other handlers, abstracting away the return of JSON those handlers.
+// the wrapped function's first return value can be an arbitrary blob of data that will be serialized to
+// JSON.
 func responseHandler(h func(http.ResponseWriter, *http.Request) (interface{}, int, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, status, err := h(w, r)
@@ -89,6 +99,7 @@ func responseHandler(h func(http.ResponseWriter, *http.Request) (interface{}, in
 	}
 }
 
+// smoke-test endpoint that tries to guess if the client is German or Otherwise
 func (h handler) message(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodGet {
 		return nil, http.StatusMethodNotAllowed, nil
@@ -105,6 +116,8 @@ func (h handler) message(w http.ResponseWriter, r *http.Request) (interface{}, i
 	return msg, http.StatusOK, nil
 }
 
+// quotes returns the top 20 quotes in the database
+// TODO: return most recently added first (or some other sorting mechanism) AND add pagination
 func (h handler) quotes(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	if r.Method != http.MethodGet {
 		return nil, http.StatusMethodNotAllowed, fmt.Errorf("method %s not allowed", r.Method)
@@ -122,8 +135,7 @@ func (h handler) quotes(w http.ResponseWriter, r *http.Request) (interface{}, in
 
 	quotes, err := h.svc.ListQuotes(limit)
 	if err != nil {
-		log.Printf("could not retrieve from database: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return handleInternalError(err, "could not retrieve from database")
 	}
 
 	return quotes, http.StatusOK, nil

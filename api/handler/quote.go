@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/chrfrasco/sharing-wall/api/storage"
@@ -51,14 +50,13 @@ func (h handler) getQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 	case err == sql.ErrNoRows:
 		return nil, http.StatusNotFound, fmt.Errorf("could not find quote %s", quoteID)
 	case err != nil:
-		return nil, http.StatusInternalServerError, fmt.Errorf("could not retrieve quote: %v", err)
+		return handleInternalError(err, "could not retrieve quote")
 	}
 
 	if quote.Img == "" {
 		_, err := h.generateAndUploadImageForQuote(*quote)
 		if err != nil {
-			log.Printf("could not gen missing image: %v\n", err)
-			return nil, http.StatusInternalServerError, nil
+			return handleInternalError(err, "could not gen missing image")
 		}
 	}
 
@@ -91,8 +89,7 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 		q = cq.toQuote()
 		isUnique, err := h.svc.IsQuoteIDUnique(q.QuoteID)
 		if err != nil {
-			log.Printf("could not check quoteID uniqueness: %v", err)
-			return nil, http.StatusInternalServerError, nil
+			return handleInternalError(err, "could not check quoteID uniqueness")
 		}
 		if isUnique {
 			break
@@ -101,20 +98,20 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 
 	imgURL, err := h.generateAndUploadImageForQuote(q)
 	if err != nil {
-		log.Printf("could not persist image: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return handleInternalError(err, "could not persist image")
 	}
 	q.Img = imgURL
 
 	err = h.svc.AddQuote(q)
 	if err != nil {
-		log.Printf("could not add to database: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return handleInternalError(err, "could not add to database")
 	}
 
 	return q, http.StatusOK, nil
 }
 
+// Using the quote body and name, query the image generation service
+// and persist the response to S3. Return value is the URL of the image.
 func (h handler) generateAndUploadImageForQuote(q storage.Quote) (string, error) {
 	rq := struct {
 		Quote string `json:"quote"`
@@ -159,6 +156,7 @@ func (h handler) generateAndUploadImageForQuote(q storage.Quote) (string, error)
 }
 
 // deleteQuote removes a quote from the database. This route should be authenticated.
+// TODO: ensure that this route is wrapped in auth
 func (h handler) deleteQuote(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	var input struct {
 		QuoteID  string
@@ -171,8 +169,7 @@ func (h handler) deleteQuote(w http.ResponseWriter, r *http.Request) (interface{
 	if input.QuoteID != "" {
 		err := h.svc.DeleteQuote(input.QuoteID)
 		if err != nil {
-			log.Printf("could not delete from database: %v\n", err)
-			return nil, http.StatusInternalServerError, nil
+			return handleInternalError(err, "could not delete from database")
 		}
 
 		return nil, http.StatusOK, nil
@@ -182,8 +179,7 @@ func (h handler) deleteQuote(w http.ResponseWriter, r *http.Request) (interface{
 		for _, qID := range input.QuoteIDs {
 			err := h.svc.DeleteQuote(qID)
 			if err != nil {
-				log.Printf("could not delete from database: %v\n", err)
-				return nil, http.StatusInternalServerError, nil
+				return handleInternalError(err, "could not delete from database")
 			}
 		}
 
