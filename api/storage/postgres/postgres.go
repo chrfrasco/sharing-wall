@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	// postgres drivers
 	"github.com/lib/pq"
 
@@ -49,52 +47,6 @@ func New(conn string) (storage.Service, error) {
 	db, err := connectWithTimeout(conn, time.Second*10)
 	if err != nil {
 		return nil, fmt.Errorf("could not connect to db: %v", err)
-	}
-
-	query := `
-	DROP TABLE IF EXISTS "quote";
-	DROP TABLE IF EXISTS "user";
-
-	CREATE TABLE "quote" (
-	  id       SERIAL PRIMARY KEY,
-	  body     TEXT NOT NULL,
-	  fullname TEXT NOT NULL,
-	  email    TEXT NOT NULL,
-	  country  TEXT NOT NULL,
-	  img      TEXT NOT NULL,
-	  quoteID  TEXT NOT NULL UNIQUE
-	);
-
-	CREATE TABLE "user" (
-		id SERIAL PRIMARY KEY,
-		username TEXT NOT NULL,
-		hash TEXT NOT NULL
-	)
-	`
-	_, err = db.Exec(query)
-	if err != nil {
-		return nil, err
-	}
-
-	query = `
-	INSERT INTO "quote" (body, fullname, email, country, img, quoteID)
-	VALUES ('I am not a rapper', 'Christian Scott', 'New Zealand', 'mail@mail.com', 'https://foo.com/pic', 'foobar3000');
-	`
-	_, err = db.Exec(query)
-	if err != nil {
-		return nil, err
-	}
-
-	query = `INSERT INTO "user" (username, hash) VALUES ($1, $2);`
-	username, password := "foobar", "foobar3000"
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = db.Exec(query, username, hash)
-	if err != nil {
-		return nil, err
 	}
 
 	return &postgres{db}, nil
