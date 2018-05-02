@@ -1,6 +1,6 @@
 import React from "react";
 import { Redirect } from "react-router";
-import { states, NotFoundError } from "../api";
+import { states } from "../api";
 import { FixedAspectRatio, Spinner, FlexContainer } from "./elements";
 
 export default function Quote({ quote, loadState }) {

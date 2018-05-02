@@ -4,7 +4,6 @@ const express = require("express");
 const morgan = require("morgan");
 
 const createRenderer = require("./src/renderer");
-const uploader = require("./src/uploader");
 
 const app = express();
 const port = process.env.PORT || 5000;

@@ -1,8 +1,7 @@
 import React from "react";
 import { QuoteView as Quote } from "./Quote";
-import api, { states } from "../api";
+import { states } from "../api";
 import { Grid, GridItem, Spinner } from "./elements";
-import styled from "styled-components";
 
 export default function QuoteList({ quotes, loadState }) {
   switch (loadState) {
