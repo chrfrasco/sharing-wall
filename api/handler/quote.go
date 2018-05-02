@@ -47,11 +47,19 @@ func (h handler) getQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 
 	quote, err := h.svc.GetQuote(quoteID)
 	if err != nil {
-		return nil, http.StatusInternalServerError, err
+		return nil, http.StatusInternalServerError, fmt.Errorf("could not retrieve quote: %v", err)
 	}
 
 	if quote == nil {
 		return nil, http.StatusNotFound, fmt.Errorf("could not find quote %s", quoteID)
+	}
+
+	if quote.Img == "" {
+		err = h.generateAndUploadImageForQuote(*quote)
+		if err != nil {
+			log.Printf("could not gen missing image: %v\n", err)
+			return nil, http.StatusInternalServerError, nil
+		}
 	}
 
 	return quote, http.StatusOK, nil
@@ -93,6 +101,16 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 		break
 	}
 
+	err = h.generateAndUploadImageForQuote(q)
+	if err != nil {
+		log.Printf("could not persist image: %v\n", err)
+		return nil, http.StatusInternalServerError, nil
+	}
+
+	return q, http.StatusOK, nil
+}
+
+func (h handler) generateAndUploadImageForQuote(q storage.Quote) error {
 	rq := struct {
 		Quote string `json:"quote"`
 		Name  string `json:"name"`
@@ -100,21 +118,18 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 
 	jsonString, err := json.Marshal(rq)
 	if err != nil {
-		log.Printf("could encode json: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return fmt.Errorf("could encode json: %v", err)
 	}
 
 	imgResp, err := http.Post("http://img:5000", "application/json", bytes.NewBuffer(jsonString))
 	if err != nil {
-		log.Printf("could not request image: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return fmt.Errorf("could not request image: %v", err)
 	}
 	defer imgResp.Body.Close()
 
 	jsonBody, err := ioutil.ReadAll(imgResp.Body)
 	if err != nil {
-		log.Printf("could read response body: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return fmt.Errorf("could read response body: %v", err)
 	}
 
 	var res struct {
@@ -122,25 +137,21 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 	}
 	err = json.Unmarshal(jsonBody, &res)
 	if err != nil {
-		log.Printf("could not unmarshal img response: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return fmt.Errorf("could not unmarshal img response: %v", err)
 	}
 
 	imgBytes, err := base64.StdEncoding.DecodeString(res.Png)
 	if err != nil {
-		log.Printf("could not decode response: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return fmt.Errorf("could not decode response: %v", err)
 	}
 
 	err = h.up.Upload(q.QuoteID+".png", imgBytes)
 	if err != nil {
-		log.Printf("could not upload image: %v\n", err)
-		return nil, http.StatusInternalServerError, nil
+		return fmt.Errorf("could not upload image: %v", err)
 	}
 
 	q.Img = fmt.Sprintf("https://s3-ap-southeast-2.amazonaws.com/sharing-wall/%s.png", q.QuoteID)
-
-	return q, http.StatusOK, nil
+	return nil
 }
 
 // deleteQuote removes a quote from the database. This route should be authenticated.
