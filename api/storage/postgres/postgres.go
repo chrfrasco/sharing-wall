@@ -111,6 +111,8 @@ func (p *postgres) GetPassHash(user string) (*string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not get hash: %v", err)
 	}
+	defer rows.Close()
+
 	if !rows.Next() {
 		return nil, nil
 	}
@@ -133,9 +135,13 @@ func (p *postgres) GetQuote(qID string) (*storage.Quote, error) {
 	if err != nil {
 		return nil, fmt.Errorf("could not get quote: %v", err)
 	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		return nil, nil
+	}
 
 	var q storage.Quote
-	rows.Next()
 	err = rows.Scan(&q.Body, &q.Name, &q.Email, &q.Country, &q.Img, &q.QuoteID)
 	if err != nil {
 		return nil, fmt.Errorf("could not scan: %v", err)
