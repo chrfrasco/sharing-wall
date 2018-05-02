@@ -79,27 +79,34 @@ func (p *postgres) GetPassHash(user string) (*string, error) {
 }
 
 func (p *postgres) GetQuote(qID string) (*storage.Quote, error) {
+	var q storage.Quote
+
 	query := `
 	SELECT body, fullname, email, country, img, quoteID
 	FROM "quote"
 	WHERE quoteID = $1`
-	rows, err := p.db.Query(query, qID)
+
+	err := p.db.QueryRow(query, qID).Scan(&q.Body, &q.Name, &q.Email, &q.Country, &q.Img, &q.QuoteID)
+	if err == sql.ErrNoRows {
+		return nil, err
+	}
 	if err != nil {
 		return nil, fmt.Errorf("could not get quote: %v", err)
 	}
-	defer rows.Close()
-
-	if !rows.Next() {
-		return nil, nil
-	}
-
-	var q storage.Quote
-	err = rows.Scan(&q.Body, &q.Name, &q.Email, &q.Country, &q.Img, &q.QuoteID)
-	if err != nil {
-		return nil, fmt.Errorf("could not scan: %v", err)
-	}
 
 	return &q, nil
+}
+
+func (p *postgres) IsQuoteIDUnique(quoteID string) (bool, error) {
+	err := p.db.QueryRow(`SELECT * FROM "quote" WHERE quoteID = $1`, quoteID).Scan()
+	if err == sql.ErrNoRows {
+		return true, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("could not search for quoteID: %v", err)
+	}
+
+	return false, nil
 }
 
 // ListQuotes returns n quotes
@@ -128,21 +135,21 @@ func (p *postgres) ListQuotes(n int) ([]storage.Quote, error) {
 }
 
 // AddQuote persists a quote to the database
-func (p postgres) AddQuote(q storage.Quote) (*storage.Quote, error) {
-	query := `INSERT INTO "quote" (body, fullname, email, country, img, quoteID)
-	VALUES ($1, $2, $3, $4, $5, $6);`
+func (p postgres) AddQuote(q storage.Quote) error {
+	query := `INSERT INTO "quote" (body, fullname, email, country, img, quoteID, added)
+	VALUES ($1, $2, $3, $4, $5, $6, NOW()::TIMESTAMP);`
 
 	_, err := p.db.Exec(query, q.Body, q.Name, q.Email, q.Country, q.Img, q.QuoteID)
 	if pgerr, ok := err.(*pq.Error); ok {
 		if pgerr.Code == "23505" {
-			return nil, storage.ErrDuplicateKey
+			return storage.ErrDuplicateKey
 		}
 	}
 	if err != nil {
-		return nil, fmt.Errorf("could not insert: %v", err)
+		return fmt.Errorf("could not insert: %v", err)
 	}
 
-	return &q, nil
+	return nil
 }
 
 func (p postgres) DeleteQuote(qID string) error {

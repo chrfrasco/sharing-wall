@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS "quote" (
   email    TEXT NOT NULL,
   country  TEXT NOT NULL,
   img      TEXT NOT NULL,
-  quoteID  TEXT NOT NULL UNIQUE
+  quoteID  TEXT NOT NULL UNIQUE,
+  added    TIMESTAMP NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS "user" (

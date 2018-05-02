@@ -7,8 +7,9 @@ type Service interface {
 	GetPassHash(user string) (*string, error)
 	GetQuote(qID string) (*Quote, error)
 	ListQuotes(n int) ([]Quote, error)
-	AddQuote(q Quote) (*Quote, error)
+	AddQuote(q Quote) error
 	DeleteQuote(qID string) error
+	IsQuoteIDUnique(quoteID string) (bool, error)
 	Close()
 }
 
