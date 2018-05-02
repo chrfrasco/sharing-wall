@@ -42,7 +42,7 @@ func main() {
 	if host == "" {
 		addr = fmt.Sprintf(":%s", port)
 	} else {
-		addr = fmt.Sprintf("%s/%s", host, port)
+		addr = fmt.Sprintf("%s:%s", host, port)
 	}
 
 	imgURL := os.Getenv("IMG_URL")
