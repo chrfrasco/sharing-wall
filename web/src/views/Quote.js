@@ -1,14 +1,23 @@
 import React from "react";
+import { QuoteBackground } from "../components/elements";
 import Quote from "../components/Quote";
 import QuoteList from "../components/QuoteList";
-import { QuoteBackground } from "../components/elements";
+import * as Fetchers from "../fetchers";
 
-export default ({ match: { params } }) => (
-  <React.Fragment>
-    <QuoteBackground>
-      <Quote quoteID={params.quoteID} />
-    </QuoteBackground>
+export default function QuoteView({ match: { params } }) {
+  return (
+    <React.Fragment>
+      <QuoteBackground>
+        <Fetchers.Quote quoteID={params.quoteID}>
+          {(quote, loadState) => <Quote quote={quote} loadState={loadState} />}
+        </Fetchers.Quote>
+      </QuoteBackground>
 
-    <QuoteList />
-  </React.Fragment>
-);
+      <Fetchers.Quotes>
+        {(quotes, loadState) => (
+          <QuoteList quotes={quotes} loadState={loadState} />
+        )}
+      </Fetchers.Quotes>
+    </React.Fragment>
+  );
+}

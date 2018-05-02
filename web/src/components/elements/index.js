@@ -23,6 +23,8 @@ export const QuoteBackground = styled.div`
 
 export const FlexContainer = styled.div`
   display: flex;
+  align-items: ${props => props.align || "initial"};
+  height: 100%;
 
   p {
     margin: 0;
@@ -65,14 +67,14 @@ const rotate360 = keyframes`
   }
 `;
 
-const Spinner = styled.div`
+export const Spinner = styled.div`
   margin: 0 auto;
   height: 32px;
   width: 32px;
 
   border: medium solid rgba(0, 0, 0, 0);
-  border-top: medium solid currentColor;
-  border-left: medium solid currentColor;
+  border-top: medium solid ${props => props.color};
+  border-left: medium solid ${props => props.color};
   border-radius: 100%;
 
   animation: ${rotate360} 1s ease;
@@ -80,7 +82,7 @@ const Spinner = styled.div`
 `;
 
 export const LoadingSubmitButton = () => {
-  const X = styled.div`
+  const SubmitButton = styled.div`
     font-size: 0.9em;
 
     width: 5rem;
@@ -98,9 +100,9 @@ export const LoadingSubmitButton = () => {
   `;
 
   return (
-    <X>
-      <Spinner />
-    </X>
+    <SubmitButton>
+      <Spinner color="currentColor" />
+    </SubmitButton>
   );
 };
 
@@ -174,4 +176,42 @@ export function FixedAspectRatio({ children = null, w = 1, h = 1 }) {
 export const Row = styled.div`
   display: flex;
   justify-content: space-between;
+`;
+
+export const Grid = styled.div`
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  @media (max-width: 599px) {
+    padding: 0 14px;
+  }
+
+  @media (min-width: 600px) and (max-width: 899px) {
+    padding: 0 51px;
+  }
+
+  @media (min-width: 900px) {
+    padding: 0 39px;
+  }
+`;
+
+export const GridItem = styled.div`
+  position: relative;
+
+  @media (max-width: 599px) {
+    width: 100%;
+    margin-bottom: 14px;
+  }
+
+  @media (min-width: 600px) and (max-width: 899px) {
+    width: calc(33.33% - 23px);
+    margin-top: 34px;
+  }
+
+  @media (min-width: 900px) {
+    width: calc(25% - 20px);
+    margin-top: 26px;
+  }
 `;
