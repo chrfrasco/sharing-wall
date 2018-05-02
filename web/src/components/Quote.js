@@ -1,6 +1,6 @@
 import React from "react";
 import { retrieveQuote } from "../utils";
-import { states } from "../api";
+import { states, NotFoundError } from "../api";
 import { FixedAspectRatio } from "./elements";
 
 export default class Quote extends React.Component {
@@ -46,7 +46,16 @@ export default class Quote extends React.Component {
       const quote = await retrieveQuote(quoteID);
       this.setState({ quote, loadingState: states.LOADED });
     } catch (e) {
-      this.setState({ loadingState: states.ERROR });
+      this.handleFetchError(e);
     }
+  }
+
+  handleFetchError(e) {
+    if (e instanceof NotFoundError) {
+      this.setState({ loadingState: states.NOT_FOUND });
+      return;
+    }
+
+    this.setState({ loadingState: states.ERROR });
   }
 }

@@ -54,9 +54,21 @@ function logResponse(r) {
   return r;
 }
 
+export class NotFoundError extends Error {
+  constructor(...args) {
+    super(args);
+    Error.captureStackTrace(this, NotFoundError);
+    Object.setPrototypeOf(this, NotFoundError.prototype);
+  }
+}
+
 function checkOK(r) {
   if (200 <= r.status && r.status < 300) {
     return r;
+  }
+
+  if (r.status === 404) {
+    throw new NotFoundError(r.statusText);
   }
 
   throw new Error(`${r.status} ${r.statusText}`);
