@@ -24,6 +24,7 @@
 #   go-tests = true
 #   unused-packages = true
 
+metadata.heroku["root-package"]=github.com/chrfrasco/sharing-wall/api
 
 [[constraint]]
   name = "github.com/fatih/color"
