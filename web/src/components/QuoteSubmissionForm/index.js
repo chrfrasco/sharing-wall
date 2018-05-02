@@ -6,7 +6,6 @@ import {
   FormField,
   Spacer,
   SubmitButton,
-  Spinner,
   LoadingSubmitButton
 } from "../elements";
 import { IS_DEVICE_TOUCHSCREEN, IS_PRODUCTION } from "../../constants";
