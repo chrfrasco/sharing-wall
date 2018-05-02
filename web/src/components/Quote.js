@@ -1,10 +1,10 @@
 import React from "react";
 import { Redirect } from "react-router";
 import { states, NotFoundError } from "../api";
-import { FixedAspectRatio } from "./elements";
+import { FixedAspectRatio, Spinner, FlexContainer } from "./elements";
 
-export default function QuoteLoader({ quote, loadingState }) {
-  switch (loadingState) {
+export default function Quote({ quote, loadState }) {
+  switch (loadState) {
     case states.LOADING:
       return <LoadingView />;
     case states.NOT_FOUND:
@@ -17,7 +17,13 @@ export default function QuoteLoader({ quote, loadingState }) {
 }
 
 export function LoadingView() {
-  return <FixedAspectRatio w={1} h={1} />;
+  return (
+    <FixedAspectRatio w={1} h={1}>
+      <FlexContainer align="center">
+        <Spinner color="black" />
+      </FlexContainer>
+    </FixedAspectRatio>
+  );
 }
 
 export function NotFoundView() {
