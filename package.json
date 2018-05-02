@@ -1,4 +1,14 @@
 {
+  "name": "sharing-wall",
+  "version": "0.0.1",
+  "author": {
+    "email": "me@christianfscott.com",
+    "name": "Christian Scott",
+    "url": "https://christianfscott.com"
+  },
+  "scripts": {
+    "precommit": "lint-staged"
+  },
   "devDependencies": {
     "babel-eslint": "^7.2.3",
     "eslint": "^4.1.1",
@@ -11,5 +21,12 @@
     "husky": "^0.14.3",
     "lint-staged": "^7.0.5",
     "prettier": "^1.12.1"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "eslint",
+      "git add"
+    ]
   }
 }
