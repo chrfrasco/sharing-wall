@@ -37,7 +37,14 @@ func main() {
 		fatalf("could not init S3 connection: %v\n", err)
 	}
 
-	addr := fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
+	var addr string
+	host, port := os.Getenv("HOST"), os.Getenv("PORT")
+	if host == "" {
+		addr = fmt.Sprintf(":%s", port)
+	} else {
+		addr = fmt.Sprintf("%s/%s", host, port)
+	}
+
 	imgURL := os.Getenv("IMG_URL")
 	server := http.Server{
 		Addr:    addr,
