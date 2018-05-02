@@ -65,10 +65,11 @@ class Renderer {
 }
 
 async function create() {
-  const browser = await puppeteer.launch({
+  const launchArgs = {
     executablePath: "/usr/bin/google-chrome",
-    args: ["--no-sandbox"]
-  });
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+  };
+  const browser = await puppeteer.launch(launchArgs);
   return new Renderer(browser);
 }
 
