@@ -1,23 +1,136 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+export const QuoteBackground = styled.div`
+  background-color: #f9f8f7;
+  font-family: "Requiem Display A", "Requiem Display B";
+  font-style: normal;
+  font-weight: 400;
+  overflow: hidden;
+
+  @media (min-width: 532px) {
+    padding: 1rem;
+  }
+
+  & > div:first-child,
+  & > img:first-child {
+    margin: 0 auto;
+    max-width: 500px;
+    display: block;
+    box-shadow: 1px 1px 25px rgba(0, 0, 0, 0.05);
+  }
+`;
+
+export const FlexContainer = styled.div`
+  display: flex;
+
+  p {
+    margin: 0;
+  }
+
+  small {
+    font-size: 0.7em;
+  }
+
+  @media (max-width: 750px) {
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    section {
+      margin-bottom: 1em;
+    }
+  }
+`;
+
+export const SubmitButton = styled.input`
+  font-size: 0.9em;
+
+  width: 5rem;
+  height: 5rem;
+
+  border: none;
+  border-radius: 100%;
+
+  background-color: #444;
+  color: white;
+`;
+
+const rotate360 = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const Spinner = styled.div`
+  margin: 0 auto;
+  height: 32px;
+  width: 32px;
+
+  border: medium solid rgba(0, 0, 0, 0);
+  border-top: medium solid currentColor;
+  border-left: medium solid currentColor;
+  border-radius: 100%;
+
+  animation: ${rotate360} 1s ease;
+  animation-iteration-count: infinite;
+`;
+
+export const LoadingSubmitButton = () => {
+  const X = styled.div`
+    font-size: 0.9em;
+
+    width: 5rem;
+    height: 5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 100%;
+
+    background-color: #444;
+    color: white;
+  `;
+
+  return (
+    <X>
+      <Spinner />
+    </X>
+  );
+};
 
 export const FormField = styled.div`
   font-size: 1rem;
-  margin-bottom: 0.4rem;
+  margin: 0 1em 0.4em 1em;
+  width: 20em;
+
+  @media (max-width: 750px) {
+    margin: 0 1em 0.4em 0;
+  }
 
   label {
     font-size: 0.8rem;
     margin-left: 0.1rem;
+    display: inline-block;
+    min-width: 6em;
   }
 
   input,
   textarea {
     font-size: inherit;
+    font-weight: inherit;
+
     padding-left: 0.1rem;
     padding-right: 0.1rem;
     border: none;
 
     background-color: rgb(248, 248, 248);
+    min-width: 14em;
   }
 
   textarea {
@@ -31,7 +144,7 @@ export const Spacer = styled.div`
   height: ${props => props.height || 1}rem;
 `;
 
-export function FixedAspectRatio({ children, w = 1, h = 1 }) {
+export function FixedAspectRatio({ children = null, w = 1, h = 1 }) {
   const Fixed = styled.div`
     position: relative;
     width: 100%;

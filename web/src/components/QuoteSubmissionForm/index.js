@@ -1,7 +1,14 @@
 import React from "react";
 import { Redirect } from "react-router";
 import QuotePreviewWrapper from "./QuotePreviewWrapper";
-import { FormField, Spacer } from "../elements";
+import {
+  FlexContainer,
+  FormField,
+  Spacer,
+  SubmitButton,
+  Spinner,
+  LoadingSubmitButton
+} from "../elements";
 import { IS_DEVICE_TOUCHSCREEN, IS_PRODUCTION } from "../../constants";
 import api, { states } from "../../api";
 
@@ -68,9 +75,9 @@ export default class QuoteSubmissionForm extends React.Component {
       case states.LOADED:
         return <Redirect to={`/quote/${this.state.quoteID}`} />;
       case states.NOT_STARTED:
-        return this.renderForm();
+        return this.renderForm(false);
       case states.LOADING:
-        return <h1>Submitting...</h1>;
+        return this.renderForm(true);
       case states.ERROR:
         return <Redirect to="/error" />;
       default:
@@ -80,7 +87,7 @@ export default class QuoteSubmissionForm extends React.Component {
     }
   }
 
-  renderForm() {
+  renderForm(loading) {
     const textareaPlaceholder = IS_DEVICE_TOUCHSCREEN
       ? "Type your answer below"
       : "Type here";
@@ -111,46 +118,66 @@ export default class QuoteSubmissionForm extends React.Component {
           </FormField>
         ) : null}
 
-        <FormField>
-          <label htmlFor="form-name">Name: </label>
-          <input
-            required
-            autoComplete="name"
-            name="name"
-            id="form-name"
-            placeholder="Enter your name"
-            value={this.state.name}
-            onChange={this.handleInputChange}
-          />
-        </FormField>
+        <FlexContainer>
+          <section>
+            <p>
+              <b style={{ fontWeight: 500 }}>Tell us what matters to you.</b>{" "}
+              We'll post your answer and you'll also go into the draw to win
+              flights and accomodation to attend the launch event for the 200
+              Women exhibition in Munich on October 27*.
+            </p>
+            <small>*Terms and conditions apply</small>
+          </section>
 
-        <FormField>
-          <label htmlFor="form-country">Country: </label>
-          <input
-            required
-            name="country"
-            id="form-country"
-            autoComplete="address-level1"
-            placeholder="Enter your country"
-            value={this.state.country}
-            onChange={this.handleInputChange}
-          />
-        </FormField>
+          <div>
+            <FormField>
+              <label htmlFor="form-name">Name: </label>
+              <input
+                required
+                autoComplete="name"
+                name="name"
+                id="form-name"
+                placeholder="Enter your name"
+                value={this.state.name}
+                onChange={this.handleInputChange}
+              />
+            </FormField>
 
-        <FormField>
-          <label htmlFor="form-email">Email: </label>
-          <input
-            type="email"
-            required
-            name="email"
-            id="form-email"
-            placeholder="Enter your email"
-            value={this.state.email}
-            onChange={this.handleInputChange}
-          />
-        </FormField>
+            <FormField>
+              <label htmlFor="form-country">Country: </label>
+              <input
+                required
+                name="country"
+                id="form-country"
+                autoComplete="address-level1"
+                placeholder="Enter your country"
+                value={this.state.country}
+                onChange={this.handleInputChange}
+              />
+            </FormField>
 
-        <input type="submit" value="submit your quote" />
+            <FormField>
+              <label htmlFor="form-email">Email: </label>
+              <input
+                type="email"
+                required
+                name="email"
+                id="form-email"
+                placeholder="Enter your email"
+                value={this.state.email}
+                onChange={this.handleInputChange}
+              />
+            </FormField>
+          </div>
+
+          <div>
+            {loading ? (
+              <LoadingSubmitButton />
+            ) : (
+              <SubmitButton type="submit" value="Submit" />
+            )}
+          </div>
+        </FlexContainer>
       </form>
     );
   }

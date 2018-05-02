@@ -6,4 +6,5 @@ export default styled.main`
   width: 100%;
   max-width: 880px;
   margin: 0 auto;
+  padding-top: 64px;
 `;

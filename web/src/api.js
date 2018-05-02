@@ -13,8 +13,8 @@ export default {
     return get(`/api/quote?quoteID=${quoteID}`);
   },
 
-  getQuotes() {
-    return get("/api/quotes");
+  getQuotes(limit = 20) {
+    return get(`/api/quotes?limit=${limit}`);
   },
 
   getMessage() {

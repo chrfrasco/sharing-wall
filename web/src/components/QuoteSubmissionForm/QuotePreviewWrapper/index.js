@@ -1,31 +1,15 @@
 import React from "react";
 import styled from "styled-components";
-import { FixedAspectRatio, Row } from "../../elements";
+import { FixedAspectRatio, Row, QuoteBackground } from "../../elements";
 import { IS_DEVICE_TOUCHSCREEN } from "../../../constants";
 import "./QuoteFontSizes.css";
-
-const Background = styled.div`
-  background-color: #dedede;
-  font-family: "Requiem Display A", "Requiem Display B";
-  font-style: normal;
-  font-weight: 400;
-
-  @media (min-width: 532px) {
-    padding: 1rem;
-  }
-
-  & > div:first-child {
-    margin: 0 auto;
-    max-width: 500px;
-  }
-`;
 
 const Inner = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  background-color: papayawhip;
+  background-color: #fff9ed;
   padding: 1rem;
 
   textarea {
@@ -87,7 +71,7 @@ export default class QuotePreviewWrapper extends React.Component {
     } = this.props;
 
     return (
-      <Background>
+      <QuoteBackground>
         <FixedAspectRatio w={1} h={1}>
           <Inner>
             <span>What matters to me?</span>
@@ -114,7 +98,7 @@ export default class QuotePreviewWrapper extends React.Component {
             </Row>
           </Inner>
         </FixedAspectRatio>
-      </Background>
+      </QuoteBackground>
     );
   }
 }

@@ -14,6 +14,7 @@ injectGlobal`
     color: #333333;
     -webkit-font-smoothing: antialiased;
     font-family: "Whitney SSm A", "Whitney SSm B";
+    font-size: 16px;
     font-style: normal;
     font-weight: 300;
   }
