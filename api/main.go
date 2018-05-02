@@ -19,12 +19,14 @@ import (
 var cyan = color.New(color.FgCyan).SprintFunc()
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		fatalf("Error loading .env file: %v\n", err)
+	if _, err := os.Stat(".env"); err == nil {
+		err := godotenv.Load()
+		if err != nil {
+			fatalf("Error loading .env file: %v\n", err)
+		}
 	}
 
-	svc, err := postgres.New(os.Getenv("PG_CONN"))
+	svc, err := postgres.New(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		fatalf("could not init handler: %v\n", err)
 	}
@@ -35,7 +37,7 @@ func main() {
 		fatalf("could not init S3 connection: %v\n", err)
 	}
 
-	addr := fmt.Sprintf("%s:%s", os.Getenv("SV_HOST"), os.Getenv("SV_PORT"))
+	addr := fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT"))
 	imgURL := os.Getenv("IMG_URL")
 	server := http.Server{
 		Addr:    addr,
@@ -57,7 +59,7 @@ func main() {
 		}
 	}()
 
-	log.Printf(cyan("Server listening on http://%s\n"), addr)
+	log.Printf(cyan("Server listening on //%s\n"), addr)
 	if err := server.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("%v", err)
 	} else {
