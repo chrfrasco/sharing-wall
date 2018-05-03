@@ -4,17 +4,43 @@ import "./Modal.css";
 
 ReactModal.setAppElement("#root");
 
-function Toggle({ openModal, children }) {
-  return children(openModal);
+ReactModal.defaultStyles = {
+  content: {
+    ...ReactModal.defaultStyles.content,
+    left: "50%",
+    top: "50%",
+    bottom: "unset",
+
+    width: "100%",
+    maxWidth: "calc(880px - 2rem)",
+
+    padding: "1rem",
+
+    transform: "translateX(-50%) translateY(-50%)",
+
+    border: "none",
+    borderRadius: "none"
+  },
+  overlay: {
+    ...ReactModal.defaultStyles.overlay,
+    backgroundColor: "transparent"
+  }
+};
+
+class Toggle extends React.Component {
+  shouldComponentUpdate() {
+    return false;
+  }
+
+  render() {
+    const { openModal, children } = this.props;
+    return children(openModal);
+  }
 }
 
 function Body({ isOpen, closeModal, children }) {
   return (
-    <ReactModal
-      isOpen={isOpen}
-      onRequestClose={closeModal}
-      closeTimeoutMS={150}
-    >
+    <ReactModal isOpen={isOpen} onRequestClose={closeModal}>
       {children({ isOpen, closeModal })}
     </ReactModal>
   );

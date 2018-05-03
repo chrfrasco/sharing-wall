@@ -26,7 +26,7 @@ export const QuoteBackground = styled.div`
   overflow: hidden;
 
   @media (min-width: 532px) {
-    padding: 1rem;
+    padding: 2.4rem;
   }
 
   & > div:first-child,
