@@ -98,7 +98,7 @@ func (p *postgres) GetQuote(qID string) (*storage.Quote, error) {
 }
 
 func (p *postgres) IsQuoteIDUnique(quoteID string) (bool, error) {
-	err := p.db.QueryRow(`SELECT * FROM "quote" WHERE quoteID = $1`, quoteID).Scan()
+	err := p.db.QueryRow(`SELECT FROM "quote" WHERE quoteID = $1`, quoteID).Scan()
 	if err == sql.ErrNoRows {
 		return true, nil
 	}
