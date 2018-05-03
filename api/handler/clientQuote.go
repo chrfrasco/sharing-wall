@@ -47,6 +47,9 @@ func (cq clientQuote) validate() (bool, string) {
 	if len(missing) > 0 {
 		return false, fmt.Sprintf("missing %s", strings.Join(missing, ", "))
 	}
+	if len(cq.Body) > 400 {
+		return false, "quote longer than 400 characters"
+	}
 
 	return true, ""
 }
