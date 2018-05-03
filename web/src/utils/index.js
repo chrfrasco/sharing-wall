@@ -54,8 +54,7 @@ export function wrapInQuotemarks(s) {
 }
 
 /**
- * Tests if the current device is a mobile phone or a
- * tablet.
+ * Tests if the current device is a mobile phone or a tablet.
  *
  * From https://stackoverflow.com/a/11381730/5130898
  *
@@ -77,4 +76,31 @@ export function isTouchscreenDevice() {
   return check;
 }
 
+/**
+ * Simple email validation. Will have some false positives, but correcting this would
+ * introduce false negatives which is debatably worse.
+ *
+ * From https://stackoverflow.com/a/9204568/5130898
+ *
+ * @param {string} email
+ * @returns {boolean}
+ */
+export function validateEmail(email) {
+  const re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
+/**
+ * Empty function for use as a default callback
+ */
 export function noop() {}
+
+/**
+ * Restrict the value of a number
+ *
+ * @param {number} n number to clamp
+ * @param {{ max: number, min: number }} opts
+ */
+export function clamp(n, { min = 0, max = 1 }) {
+  return Math.max(min, Math.min(n, max));
+}
