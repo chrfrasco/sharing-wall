@@ -104,24 +104,7 @@ export default class QuoteSubmissionForm extends React.Component {
           disabled={loading}
         />
 
-        <Spacer />
-
-        {IS_DEVICE_TOUCHSCREEN ? (
-          <FormField>
-            <label htmlFor="form-quote">What matters to you?</label>
-            <textarea
-              required
-              disabled={loading}
-              name="quote"
-              id="form-quote"
-              value={this.state.quote}
-              onChange={this.handleInputChange}
-              placeholder="Enter your answer"
-              maxLength={MAX_QUOTE_LEN}
-            />
-            <Spacer />
-          </FormField>
-        ) : null}
+        <Spacer height={2} />
 
         <FlexContainer>
           <section>
@@ -132,7 +115,25 @@ export default class QuoteSubmissionForm extends React.Component {
               Women exhibition in Munich on October 27*.
             </p>
             <small>*Terms and conditions apply</small>
+            <Spacer height={2} />
           </section>
+
+          {IS_DEVICE_TOUCHSCREEN ? (
+            <FormField>
+              <label htmlFor="form-quote">What matters to you?</label>
+              <textarea
+                required
+                disabled={loading}
+                name="quote"
+                id="form-quote"
+                value={this.state.quote}
+                onChange={this.handleInputChange}
+                placeholder="Enter your answer"
+                maxLength={MAX_QUOTE_LEN}
+              />
+              <Spacer />
+            </FormField>
+          ) : null}
 
           <div>
             <FormField>
