@@ -113,36 +113,36 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 // Using the quote body and name, query the image generation service
 // and persist the response to S3. Return value is the URL of the image.
 func (h handler) generateAndUploadImageForQuote(q storage.Quote) (string, error) {
-	rq := struct {
+	imgReqData := struct {
 		Quote string `json:"quote"`
 		Name  string `json:"name"`
 	}{Quote: q.Body, Name: q.Name}
 
-	jsonString, err := json.Marshal(rq)
+	imgReqJSON, err := json.Marshal(imgReqData)
 	if err != nil {
 		return "", fmt.Errorf("could encode json: %v", err)
 	}
 
-	imgResp, err := http.Post(h.imgURL, "application/json", bytes.NewBuffer(jsonString))
+	imgResp, err := http.Post(h.imgURL, "application/json", bytes.NewBuffer(imgReqJSON))
 	if err != nil {
 		return "", fmt.Errorf("could not request image: %v", err)
 	}
 	defer imgResp.Body.Close()
 
-	jsonBody, err := ioutil.ReadAll(imgResp.Body)
+	imgRespJSON, err := ioutil.ReadAll(imgResp.Body)
 	if err != nil {
 		return "", fmt.Errorf("could read response body: %v", err)
 	}
 
-	var res struct {
+	var imgResult struct {
 		Png string `json:"png"`
 	}
-	err = json.Unmarshal(jsonBody, &res)
+	err = json.Unmarshal(imgRespJSON, &imgResult)
 	if err != nil {
 		return "", fmt.Errorf("could not unmarshal img response: %v", err)
 	}
 
-	imgBytes, err := base64.StdEncoding.DecodeString(res.Png)
+	imgBytes, err := base64.StdEncoding.DecodeString(imgResult.Png)
 	if err != nil {
 		return "", fmt.Errorf("could not decode response: %v", err)
 	}
