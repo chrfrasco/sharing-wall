@@ -1,7 +1,7 @@
 import React from "react";
 import { Redirect } from "react-router";
 import { states } from "../api";
-import { FixedAspectRatio, Spinner, FlexContainer } from "./elements";
+import { FixedAspectRatio } from "./elements";
 import LazyImage from "./LazyImage";
 
 export default function Quote({ quote, loadState }) {
