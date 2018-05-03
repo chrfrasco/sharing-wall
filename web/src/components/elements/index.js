@@ -1,5 +1,22 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
+import { clamp } from "../../utils";
+
+export function Heading({
+  level = 1,
+  center = false,
+  style = {},
+  children,
+  ...rest
+}) {
+  style.fontWeight = "inherit";
+  if (center) {
+    style.textAlign = "center";
+  }
+
+  const clampedLevel = clamp(level, { min: 1, max: 6 });
+  return React.createElement(`h${clampedLevel}`, { style, ...rest }, children);
+}
 
 export const QuoteBackground = styled.div`
   background-color: #f9f8f7;
@@ -55,6 +72,16 @@ export const SubmitButton = styled.input`
 
   background-color: #444;
   color: white;
+
+  opacity: 1;
+  transition: opacity 125ms ease-in-out;
+
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 `;
 
 const rotate360 = keyframes`
@@ -81,7 +108,7 @@ export const Spinner = styled.div`
   animation-iteration-count: infinite;
 `;
 
-export const LoadingSubmitButton = () => {
+export const LoadingSubmitButton = ({ disabled }) => {
   const SubmitButton = styled.div`
     font-size: 0.9em;
 
@@ -97,6 +124,8 @@ export const LoadingSubmitButton = () => {
 
     background-color: #444;
     color: white;
+
+    opacity: 0.4;
   `;
 
   return (
@@ -109,10 +138,14 @@ export const LoadingSubmitButton = () => {
 export const FormField = styled.div`
   font-size: 1rem;
   margin: 0 1em 0.4em 1em;
-  width: 20em;
+
+  @media (min-width: 750px) {
+    width: 20em;
+  }
 
   @media (max-width: 750px) {
-    margin: 0 1em 0.4em 0;
+    margin: 0 0 0.4em 0;
+    width: 100%;
   }
 
   label {
@@ -183,18 +216,6 @@ export const Grid = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-
-  @media (max-width: 599px) {
-    padding: 0 14px;
-  }
-
-  @media (min-width: 600px) and (max-width: 899px) {
-    padding: 0 51px;
-  }
-
-  @media (min-width: 900px) {
-    padding: 0 39px;
-  }
 `;
 
 export const GridItem = styled.div`
@@ -202,16 +223,13 @@ export const GridItem = styled.div`
 
   @media (max-width: 599px) {
     width: 100%;
-    margin-bottom: 14px;
   }
 
   @media (min-width: 600px) and (max-width: 899px) {
-    width: calc(33.33% - 23px);
-    margin-top: 34px;
+    width: calc(33.33%);
   }
 
   @media (min-width: 900px) {
-    width: calc(25% - 20px);
-    margin-top: 26px;
+    width: calc(25%);
   }
 `;
