@@ -10,6 +10,9 @@ import {
 } from "../elements";
 import { IS_DEVICE_TOUCHSCREEN, IS_PRODUCTION } from "../../constants";
 import api, { states } from "../../api";
+import { validateEmail } from "../../utils";
+
+const MAX_QUOTE_LEN = 400;
 
 const fontSizeClassNames = {
   sml: "quote-font--sml",
@@ -98,6 +101,7 @@ export default class QuoteSubmissionForm extends React.Component {
           handleQuoteChange={this.handleInputChange}
           placeholder={textareaPlaceholder}
           styleName={getFontSizeClassName(this.state.quote)}
+          disabled={loading}
         />
 
         <Spacer />
@@ -107,11 +111,13 @@ export default class QuoteSubmissionForm extends React.Component {
             <label htmlFor="form-quote">What matters to you?</label>
             <textarea
               required
+              disabled={loading}
               name="quote"
               id="form-quote"
               value={this.state.quote}
               onChange={this.handleInputChange}
               placeholder="Enter your answer"
+              maxLength={MAX_QUOTE_LEN}
             />
             <Spacer />
           </FormField>
@@ -133,6 +139,7 @@ export default class QuoteSubmissionForm extends React.Component {
               <label htmlFor="form-name">Name: </label>
               <input
                 required
+                disabled={loading}
                 autoComplete="name"
                 name="name"
                 id="form-name"
@@ -146,6 +153,7 @@ export default class QuoteSubmissionForm extends React.Component {
               <label htmlFor="form-country">Country: </label>
               <input
                 required
+                disabled={loading}
                 name="country"
                 id="form-country"
                 autoComplete="address-level1"
@@ -160,6 +168,7 @@ export default class QuoteSubmissionForm extends React.Component {
               <input
                 type="email"
                 required
+                disabled={loading}
                 name="email"
                 id="form-email"
                 placeholder="Enter your email"
@@ -173,7 +182,11 @@ export default class QuoteSubmissionForm extends React.Component {
             {loading ? (
               <LoadingSubmitButton />
             ) : (
-              <SubmitButton type="submit" value="Submit" />
+              <SubmitButton
+                type="submit"
+                value="Submit"
+                disabled={!this.validate()}
+              />
             )}
           </div>
         </FlexContainer>
@@ -200,5 +213,17 @@ export default class QuoteSubmissionForm extends React.Component {
     } catch (e) {
       this.setState({ loadingState: states.ERROR });
     }
+  }
+
+  validate() {
+    const validQuote =
+      0 < this.state.quote.length && this.state.quote.length < MAX_QUOTE_LEN;
+    const validEmail = validateEmail(this.state.email);
+    return (
+      validQuote &&
+      validEmail &&
+      this.state.name !== "" &&
+      this.state.country !== ""
+    );
   }
 }
