@@ -2,6 +2,7 @@ import React from "react";
 import { Redirect } from "react-router";
 import { states } from "../api";
 import { FixedAspectRatio, Spinner, FlexContainer } from "./elements";
+import LazyImage from "./LazyImage";
 
 export default function Quote({ quote, loadState }) {
   switch (loadState) {
@@ -17,13 +18,7 @@ export default function Quote({ quote, loadState }) {
 }
 
 export function LoadingView() {
-  return (
-    <FixedAspectRatio w={1} h={1}>
-      <FlexContainer align="center">
-        <Spinner color="black" />
-      </FlexContainer>
-    </FixedAspectRatio>
-  );
+  return <FixedAspectRatio w={1} h={1} />;
 }
 
 export function NotFoundView() {
@@ -40,11 +35,7 @@ export function QuoteView({ quote }) {
   }.png`;
   return (
     <FixedAspectRatio w={1} h={1}>
-      <img
-        style={{ maxWidth: "100%", display: "block" }}
-        src={src}
-        alt={`Quote by ${quote.name}`}
-      />
+      <LazyImage src={src} alt={`Quote by ${quote.name}`} />
     </FixedAspectRatio>
   );
 }
