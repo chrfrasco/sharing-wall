@@ -85,7 +85,7 @@ export default class QuotePreviewWrapper extends React.Component {
                 className={styleName}
                 placeholder={placeholder}
                 readOnly={IS_DEVICE_TOUCHSCREEN}
-                disabled={IS_DEVICE_TOUCHSCREEN}
+                disabled={this.props.disabled || IS_DEVICE_TOUCHSCREEN}
                 maxLength={280}
               />
             </div>
