@@ -11,7 +11,7 @@ ReactModal.defaultStyles = {
     top: "50%",
     bottom: "unset",
 
-    width: "100%",
+    width: "calc(100% - 2rem)",
     maxWidth: "calc(880px - 2rem)",
 
     padding: "1rem",
