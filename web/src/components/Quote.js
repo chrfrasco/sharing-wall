@@ -4,7 +4,7 @@ import { states } from "../api";
 import { FixedAspectRatio } from "./elements";
 import LazyImage from "./LazyImage";
 
-export default function Quote({ quote, loadState }) {
+export default function Quote({ quote, loadState, ...rest }) {
   switch (loadState) {
     case states.LOADING:
       return <LoadingView />;
@@ -13,7 +13,7 @@ export default function Quote({ quote, loadState }) {
     case states.ERROR:
       return <ErrorView />;
     default:
-      return <QuoteView quote={quote} />;
+      return <QuoteView quote={quote} {...rest} />;
   }
 }
 
@@ -29,13 +29,13 @@ export function ErrorView() {
   return <Redirect to="/error" />;
 }
 
-export function QuoteView({ quote }) {
+export function QuoteView({ quote, ...rest }) {
   const src = `https://s3-ap-southeast-2.amazonaws.com/sharing-wall/${
     quote.quoteID
   }.png`;
   return (
     <FixedAspectRatio w={1} h={1}>
-      <LazyImage src={src} alt={`Quote by ${quote.name}`} />
+      <LazyImage src={src} alt={`Quote by ${quote.name}`} {...rest} />
     </FixedAspectRatio>
   );
 }

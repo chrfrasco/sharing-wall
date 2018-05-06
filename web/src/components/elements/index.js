@@ -9,7 +9,7 @@ export function Heading({
   children,
   ...rest
 }) {
-  style.fontWeight = "inherit";
+  style.fontWeight = 400;
   if (center) {
     style.textAlign = "center";
   }
@@ -19,6 +19,7 @@ export function Heading({
 }
 
 export const QuoteBackground = styled.div`
+  position: relative;
   background-color: #f9f8f7;
   font-family: "Requiem Display A", "Requiem Display B";
   font-style: normal;
@@ -26,7 +27,7 @@ export const QuoteBackground = styled.div`
   overflow: hidden;
 
   @media (min-width: 532px) {
-    padding: 2.4rem;
+    padding: ${props => (props.tight ? 1 : 2.4)}rem;
   }
 
   & > div:first-child,

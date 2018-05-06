@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { QuoteView as Quote } from "./Quote";
 import { states } from "../api";
-import { Grid, GridItem, Spinner, QuoteBackground, Heading } from "./elements";
+import { Grid, GridItem, Spinner, Heading } from "./elements";
 import Modal from "./Modal";
 import close from "./close.svg";
+import QuoteWithBackground from "./QuoteWithBackground";
 
 export default function QuoteList({ quotes, loadState }) {
   switch (loadState) {
@@ -23,9 +23,7 @@ function QuoteListItem({ quote }) {
       <Modal.Toggle>
         {openModal => (
           <GridItem style={{ cursor: "pointer" }} onClick={openModal}>
-            <QuoteBackground>
-            <Quote quote={quote} />
-            </QuoteBackground>
+            <QuoteWithBackground quote={quote} tight />
           </GridItem>
         )}
       </Modal.Toggle>
@@ -43,9 +41,7 @@ function QuotePopup({ closeModal, quote }) {
   return (
     <React.Fragment>
       <CloseButton onClick={closeModal} />
-          <QuoteBackground>
-            <Quote quote={quote} />
-          </QuoteBackground>
+      <QuoteWithBackground quote={quote} showShare />
     </React.Fragment>
   );
 }
@@ -75,8 +71,15 @@ function CloseButton({ onClick }) {
 
 export function QuoteListView({ quotes }) {
   return (
-    <Grid>
-      {quotes.map(quote => <QuoteListItem key={quote.quoteID} quote={quote} />)}
-    </Grid>
+    <React.Fragment>
+      <Heading level={3} center>
+        What really matters to you?
+      </Heading>
+      <Grid>
+        {quotes.map(quote => (
+          <QuoteListItem key={quote.quoteID} quote={quote} />
+        ))}
+      </Grid>
+    </React.Fragment>
   );
 }
