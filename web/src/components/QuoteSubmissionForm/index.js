@@ -40,6 +40,7 @@ function getFontSizeClassName(quote) {
 
 function getQuoteFromState({ quote, name, email, country, backgroundVersion }) {
   return {
+    "background-version": bgVersion,
     body: quote,
     backgroundVersion,
     name,
@@ -72,6 +73,7 @@ const initialState = IS_PRODUCTION
 
 export default class QuoteSubmissionForm extends React.Component {
   state = initialState;
+  bgVersion = rand(1, 4);
 
   constructor(props) {
     super(props);
