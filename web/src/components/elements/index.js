@@ -20,22 +20,29 @@ export function Heading({
 
 export const QuoteBackground = styled.div`
   position: relative;
-  background-color: #f9f8f7;
   font-family: "Requiem Display A", "Requiem Display B";
   font-style: normal;
   font-weight: 400;
   overflow: hidden;
 
+  width: 100%;
+  height: 100%;
+
+  background-image: url("backgrounds/engagement-tile-1.jpg");
+  background-size: contain;
+
   @media (min-width: 532px) {
     padding: ${props => (props.tight ? 1 : 2.4)}rem;
   }
 
-  & > div:first-child,
-  & > img:first-child {
-    margin: 0 auto;
-    max-width: 500px;
+  & > div:first-child {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    max-width: 460px;
     display: block;
-    box-shadow: 1px 1px 25px rgba(0, 0, 0, 0.05);
   }
 `;
 

@@ -38,13 +38,18 @@ function getFontSizeClassName(quote) {
   }
 }
 
-function getQuoteFromState({ quote, name, email, country }) {
+function getQuoteFromState({ quote, name, email, country, bgVersion }) {
   return {
+    "background-version": bgVersion,
     body: quote,
     name,
     email,
     country
   };
+}
+
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
 const initialState = IS_PRODUCTION
@@ -65,6 +70,7 @@ const initialState = IS_PRODUCTION
 
 export default class QuoteSubmissionForm extends React.Component {
   state = initialState;
+  bgVersion = rand(1, 4);
 
   constructor(props) {
     super(props);
@@ -93,16 +99,27 @@ export default class QuoteSubmissionForm extends React.Component {
     const textareaPlaceholder = IS_DEVICE_TOUCHSCREEN
       ? "Type your answer below"
       : "Type here";
+    const textAreaClassName = [
+      "quote__body",
+      "row",
+      getFontSizeClassName(this.state.quote)
+    ].join(" ");
+
     return (
       <form onSubmit={this.handleFormSubmit}>
-        <QuotePreviewWrapper
-          name={this.state.name}
-          quote={this.state.quote}
-          handleQuoteChange={this.handleInputChange}
-          placeholder={textareaPlaceholder}
-          styleName={getFontSizeClassName(this.state.quote)}
-          disabled={loading}
-        />
+        <QuotePreviewWrapper bgVersion={this.bgVersion} name={this.state.name}>
+          <textarea
+            name="quote"
+            className={textAreaClassName}
+            ref={this.textArea}
+            value={this.state.quote}
+            onChange={this.handleInputChange}
+            placeholder={textareaPlaceholder}
+            readOnly={IS_DEVICE_TOUCHSCREEN}
+            disabled={loading || IS_DEVICE_TOUCHSCREEN}
+            maxLength={280}
+          />
+        </QuotePreviewWrapper>
 
         <Spacer height={2} />
 
