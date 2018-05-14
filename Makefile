@@ -9,5 +9,8 @@ deploy-img:
 deploy-api:
 	git subtree push --prefix api/ heroku-sharing-wall-api master
 
+deploy-web:
+	git subtree push --prefix web/ heroku-sharing-wall-web master
+
 init-api-db:
 	cat db/init.sql | heroku pg:psql --app sharing-wall-api
