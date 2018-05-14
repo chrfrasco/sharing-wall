@@ -34,7 +34,8 @@ class Renderer {
   async initPage() {
     try {
       this.page = await this.browser.newPage();
-      this.page.setViewport({ width: 1000, height: 1000 });
+      this.page.setViewport({ width: 1920, height: 1432 });
+      this.page.on("error", this.handlePageError);
     } catch (e) {
       throw e;
     }
@@ -61,6 +62,10 @@ class Renderer {
     );
 
     return await this.page.screenshot({ fullPage: true });
+  }
+
+  handlePageError(e) {
+    console.error(e);
   }
 }
 
