@@ -62,7 +62,7 @@
 }
 
 @media (max-width: 900px) {
-  .abs {
+  .abs.abs-shrink {
     top: -10%;
     bottom: -10%;
     left: -10%;

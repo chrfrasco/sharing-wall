@@ -38,10 +38,10 @@ function getFontSizeClassName(quote) {
   }
 }
 
-function getQuoteFromState({ quote, name, email, country, bgVersion }) {
+function getQuoteFromState({ quote, name, email, country, backgroundVersion }) {
   return {
-    "background-version": bgVersion,
     body: quote,
+    backgroundVersion,
     name,
     email,
     country
@@ -58,19 +58,20 @@ const initialState = IS_PRODUCTION
       quote: "",
       name: "",
       email: "",
-      country: ""
+      country: "",
+      backgroundVersion: rand(1, 4)
     }
   : {
       loadingState: states.NOT_STARTED,
       quote: "Treating others as I would have them treat me.",
       name: "Christian Scott",
       email: "christianfscott@gmail.com",
-      country: "New Zealand"
+      country: "New Zealand",
+      backgroundVersion: rand(1, 4)
     };
 
 export default class QuoteSubmissionForm extends React.Component {
   state = initialState;
-  bgVersion = rand(1, 4);
 
   constructor(props) {
     super(props);
@@ -107,7 +108,10 @@ export default class QuoteSubmissionForm extends React.Component {
 
     return (
       <form onSubmit={this.handleFormSubmit}>
-        <QuotePreviewWrapper bgVersion={this.bgVersion} name={this.state.name}>
+        <QuotePreviewWrapper
+          bgVersion={this.state.backgroundVersion}
+          name={this.state.name}
+        >
           <textarea
             name="quote"
             className={textAreaClassName}

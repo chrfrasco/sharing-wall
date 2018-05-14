@@ -28,9 +28,6 @@ export const QuoteBackground = styled.div`
   width: 100%;
   height: 100%;
 
-  background-image: url("backgrounds/engagement-tile-1.jpg");
-  background-size: contain;
-
   @media (min-width: 532px) {
     padding: ${props => (props.tight ? 1 : 2.4)}rem;
   }
@@ -187,7 +184,12 @@ export const Spacer = styled.div`
   height: ${props => props.height || 1}rem;
 `;
 
-export function FixedAspectRatio({ children = null, w = 1, h = 1 }) {
+export function FixedAspectRatio({
+  children = null,
+  w = 1,
+  h = 1,
+  className = ""
+}) {
   const Fixed = styled.div`
     position: relative;
     width: 100%;
@@ -208,7 +210,7 @@ export function FixedAspectRatio({ children = null, w = 1, h = 1 }) {
   `;
 
   return (
-    <Fixed w={w} h={h}>
+    <Fixed w={w} h={h} className={className}>
       <Inner>{children}</Inner>
     </Fixed>
   );

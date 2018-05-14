@@ -33,9 +33,16 @@ export function QuoteView({ quote, ...rest }) {
   const src = `https://s3-ap-southeast-2.amazonaws.com/sharing-wall/${
     quote.quoteID
   }.png`;
+
+  const { className, ...props } = rest;
+  const styleName = [className, "abs"].filter(Boolean).join(" ");
+
   return (
-    <FixedAspectRatio w={1} h={1}>
-      <LazyImage src={src} alt={`Quote by ${quote.name}`} {...rest} />
-    </FixedAspectRatio>
+    <LazyImage
+      src={src}
+      alt={`Quote by ${quote.name}`}
+      className={styleName}
+      {...props}
+    />
   );
 }
