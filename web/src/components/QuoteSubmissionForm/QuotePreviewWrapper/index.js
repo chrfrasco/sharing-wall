@@ -6,13 +6,17 @@ const NameSpan = styled.span`
   opacity: ${({ isBlank }) => (isBlank ? "0.5" : "1")};
 `;
 
-export default function QuotePreviewWrapper({ children, name = "" }) {
+export default function QuotePreviewWrapper({
+  children,
+  bgVersion,
+  name = ""
+}) {
   return (
     <div className="quote__container requiem">
       <div
         className="quote__bg-image abs"
         style={{
-          backgroundImage: "url(backgrounds/engagement-tile-1.jpg)"
+          backgroundImage: `url(backgrounds/engagement-tile-${bgVersion}.jpg)`
         }}
       />
 
