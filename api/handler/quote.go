@@ -114,9 +114,10 @@ func (h handler) addQuote(w http.ResponseWriter, r *http.Request) (interface{}, 
 // and persist the response to S3. Return value is the URL of the image.
 func (h handler) generateAndUploadImageForQuote(q storage.Quote) (string, error) {
 	imgReqData := struct {
-		Quote string `json:"quote"`
-		Name  string `json:"name"`
-	}{Quote: q.Body, Name: q.Name}
+		Quote   string `json:"quote"`
+		Name    string `json:"name"`
+		Version int    `json:"backgroundVersion"`
+	}{Quote: q.Body, Name: q.Name, Version: q.BackgroundVersion}
 
 	imgReqJSON, err := json.Marshal(imgReqData)
 	if err != nil {

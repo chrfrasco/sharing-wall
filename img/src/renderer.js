@@ -41,14 +41,14 @@ class Renderer {
     }
   }
 
-  async quote({ quote, name, bgVersion = 1 }) {
+  async quote({ quote, name, backgroundVersion = 1 }) {
     await this.page.goto(
       `file://${path.join(__dirname, "../template/index.html")}`
     );
 
     const className = getFontSizeClassName(quote);
     await this.page.evaluate(
-      ({ quote, name, className, bgVersion }) => {
+      ({ quote, name, className, backgroundVersion }) => {
         /* eslint-disable no-undef */
         const quoteBody = document.querySelector("#quote-body");
         const quoteName = document.querySelector("#quote-name");
@@ -59,11 +59,12 @@ class Renderer {
         quoteBody.innerHTML = `&lsquo;${quote}&rsquo;`;
         quoteBody.classList.add(className);
         quoteName.innerHTML = name;
-        quoteBackground.src = `backgrounds/engagement-tile-${bgVersion}.jpg`;
+        quoteBackground.src = `backgrounds/engagement-tile-${backgroundVersion}.jpg`;
       },
-      { quote, name, className, bgVersion }
+      { quote, name, className, backgroundVersion }
     );
 
+    await (() => new Promise(resolve => setTimeout(resolve, 100)))();
     return await this.page.screenshot({ fullPage: true });
   }
 
