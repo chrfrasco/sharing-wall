@@ -14,13 +14,13 @@ export default function QuotePreviewWrapper({
   return (
     <div className="quote__container requiem">
       <div
-        className="quote__bg-image abs"
+        className="quote__bg-image abs abs-shrink"
         style={{
           backgroundImage: `url(backgrounds/engagement-tile-${bgVersion}.jpg)`
         }}
       />
 
-      <div className="abs quote__wrapper">
+      <div className="abs abs-shrink quote__wrapper">
         <div className="quote">
           <div className="row">What matters to me?</div>
           {children}

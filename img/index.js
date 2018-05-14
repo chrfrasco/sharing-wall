@@ -15,7 +15,7 @@ function validate(body, properties) {
   let valid = true;
   let missing = [];
   for (const prop of properties) {
-    if (body[prop] == null || body[prop] == "") {
+    if (body[prop] == null || body[prop] === "") {
       valid = false;
       missing.push(prop);
     }
@@ -27,15 +27,23 @@ function validate(body, properties) {
 
 let renderer;
 
-async function handle(req, res, { quote = null, name = null }) {
-  const { valid, message } = validate({ quote, name }, ["quote", "name"]);
+async function handle(
+  req,
+  res,
+  { quote = null, name = null, backgroundVersion = null }
+) {
+  const { valid, message } = validate({ quote, name, backgroundVersion }, [
+    "quote",
+    "name",
+    "backgroundVersion"
+  ]);
   if (!valid) {
     res.status(400).send(message);
     return;
   }
 
-  const imgBuf = await renderer.quote({ quote, name });
-  const png = imgBuf.toString("base64");
+  const imgBuf = await renderer.quote({ quote, name, backgroundVersion });
+  const png = imgBuf.toString("base64"); // `<img src="data:image/png;base64,${imgBuf.toString( "base64")}" style="max-width: 100%;">`;
   res.status(200).send({ png });
 }
 

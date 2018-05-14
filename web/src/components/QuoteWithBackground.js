@@ -32,8 +32,8 @@ function DaShareZone() {
 }
 
 export default ({ quote, showShare = false, tight = false, ...rest }) => (
-  <QuoteBackground tight={tight}>
+  <div className="quote__container">
     <Quote quote={quote} {...rest} />
     {showShare && <DaShareZone />}
-  </QuoteBackground>
+  </div>
 );

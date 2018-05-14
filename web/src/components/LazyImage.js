@@ -13,9 +13,18 @@ const fadeIn = keyframes`
 
 const Img = styled.img`
   display: block;
-  max-width: 100%;
 
   ${props => (props.shouldFadeIn ? `animation: ${fadeIn} 0.5s ease;` : "")};
+
+  @media (min-width: 901px) {
+    max-width: 100%;
+  }
+
+  @media (max-width: 900px) {
+    height: 100%;
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
 `;
 
 export default class LazyImage extends React.Component {

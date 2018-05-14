@@ -34,33 +34,42 @@ class Renderer {
   async initPage() {
     try {
       this.page = await this.browser.newPage();
-      this.page.setViewport({ width: 1000, height: 1000 });
+      this.page.setViewport({ width: 1920, height: 1432 });
+      this.page.on("error", this.handlePageError);
     } catch (e) {
       throw e;
     }
   }
 
-  async quote({ quote, name }) {
+  async quote({ quote, name, backgroundVersion = 1 }) {
     await this.page.goto(
       `file://${path.join(__dirname, "../template/index.html")}`
     );
 
     const className = getFontSizeClassName(quote);
     await this.page.evaluate(
-      ({ quote, name, className }) => {
+      ({ quote, name, className, backgroundVersion }) => {
         /* eslint-disable no-undef */
         const quoteBody = document.querySelector("#quote-body");
         const quoteName = document.querySelector("#quote-name");
+        /** @type {HTMLImageElement} */
+        const quoteBackground = document.querySelector("#quote-background");
         /* eslint-enable no-undef */
 
         quoteBody.innerHTML = `&lsquo;${quote}&rsquo;`;
         quoteBody.classList.add(className);
         quoteName.innerHTML = name;
+        quoteBackground.src = `backgrounds/engagement-tile-${backgroundVersion}.jpg`;
       },
-      { quote, name, className }
+      { quote, name, className, backgroundVersion }
     );
 
+    await (() => new Promise(resolve => setTimeout(resolve, 100)))();
     return await this.page.screenshot({ fullPage: true });
+  }
+
+  handlePageError(e) {
+    console.error(e);
   }
 }
 

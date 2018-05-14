@@ -11,7 +11,11 @@ import (
 )
 
 type clientQuote struct {
-	Name, Email, Body, Country string
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	Body              string `json:"body"`
+	Country           string `json:"country"`
+	BackgroundVersion int    `json:"backgroundVersion"`
 }
 
 func clientQuoteFromRequest(r *http.Request) (*clientQuote, error) {
@@ -32,6 +36,8 @@ func (cq clientQuote) get(p string) string {
 		return cq.Body
 	case "Country":
 		return cq.Country
+	case "BackgroundVersion":
+		return string(cq.BackgroundVersion)
 	default:
 		return ""
 	}
@@ -39,7 +45,7 @@ func (cq clientQuote) get(p string) string {
 
 func (cq clientQuote) validate() (bool, string) {
 	missing := make([]string, 0)
-	for _, p := range []string{"Name", "Email", "Body", "Country"} {
+	for _, p := range []string{"Name", "Email", "Body", "Country", "BackgroundVersion"} {
 		if strings.TrimSpace(cq.get(p)) == "" {
 			missing = append(missing, p)
 		}
@@ -61,6 +67,8 @@ func (cq clientQuote) toQuote() storage.Quote {
 	q.Body = strings.TrimSpace(cq.Body)
 	q.Country = strings.TrimSpace(cq.Country)
 	q.QuoteID = GenQuoteID()
+	q.BackgroundVersion = cq.BackgroundVersion
+	fmt.Printf("%v\n", cq)
 	return q
 }
 

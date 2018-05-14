@@ -15,12 +15,13 @@ type Service interface {
 
 // Quote represents a single user-submitted quote
 type Quote struct {
-	Name    string `json:"name"`
-	Email   string `json:"email"`
-	Country string `json:"country"`
-	Body    string `json:"body"`
-	Img     string `json:"img"`
-	QuoteID string `json:"quoteID"`
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	Country           string `json:"country"`
+	Body              string `json:"body"`
+	Img               string `json:"img"`
+	QuoteID           string `json:"quoteID"`
+	BackgroundVersion int    `json:"backgroundVersion"`
 }
 
 // ErrDuplicateKey signals that the supplied QuoteID already exists in the database
