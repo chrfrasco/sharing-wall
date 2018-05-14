@@ -40,7 +40,6 @@ function getFontSizeClassName(quote) {
 
 function getQuoteFromState({ quote, name, email, country, backgroundVersion }) {
   return {
-    "background-version": bgVersion,
     body: quote,
     backgroundVersion,
     name,
