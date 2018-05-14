@@ -131,6 +131,7 @@ export const LoadingSubmitButton = ({ disabled }) => {
     color: white;
 
     opacity: 0.4;
+    -webkit-appearance: none;
   `;
 
   return (

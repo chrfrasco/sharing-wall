@@ -141,3 +141,11 @@
 .quote__body:focus {
   outline: none;
 }
+
+.quote__body[readonly],
+.quote__body:read-only,
+.quote__body:disabled {
+  -webkit-text-fill-color: #555350;
+  -webkit-opacity: 1;
+  opacity: 1;
+}
