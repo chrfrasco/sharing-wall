@@ -15,7 +15,7 @@ function validate(body, properties) {
   let valid = true;
   let missing = [];
   for (const prop of properties) {
-    if (body[prop] == null || body[prop] == "") {
+    if (body[prop] == null || body[prop] === "") {
       valid = false;
       missing.push(prop);
     }

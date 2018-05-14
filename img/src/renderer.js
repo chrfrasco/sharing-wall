@@ -41,24 +41,27 @@ class Renderer {
     }
   }
 
-  async quote({ quote, name }) {
+  async quote({ quote, name, bgVersion = 1 }) {
     await this.page.goto(
       `file://${path.join(__dirname, "../template/index.html")}`
     );
 
     const className = getFontSizeClassName(quote);
     await this.page.evaluate(
-      ({ quote, name, className }) => {
+      ({ quote, name, className, bgVersion }) => {
         /* eslint-disable no-undef */
         const quoteBody = document.querySelector("#quote-body");
         const quoteName = document.querySelector("#quote-name");
+        /** @type {HTMLImageElement} */
+        const quoteBackground = document.querySelector("#quote-background");
         /* eslint-enable no-undef */
 
         quoteBody.innerHTML = `&lsquo;${quote}&rsquo;`;
         quoteBody.classList.add(className);
         quoteName.innerHTML = name;
+        quoteBackground.src = `backgrounds/engagement-tile-${bgVersion}.jpg`;
       },
-      { quote, name, className }
+      { quote, name, className, bgVersion }
     );
 
     return await this.page.screenshot({ fullPage: true });
