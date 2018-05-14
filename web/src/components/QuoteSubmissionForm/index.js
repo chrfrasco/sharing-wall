@@ -102,7 +102,21 @@ export default class QuoteSubmissionForm extends React.Component {
           placeholder={textareaPlaceholder}
           styleName={getFontSizeClassName(this.state.quote)}
           disabled={loading}
-        />
+        >
+          <textarea
+            name="quote"
+            className={
+              "quote__body row " + getFontSizeClassName(this.state.quote)
+            }
+            ref={this.textArea}
+            value={this.state.quote}
+            onChange={this.handleInputChange}
+            placeholder={textareaPlaceholder}
+            readOnly={IS_DEVICE_TOUCHSCREEN}
+            disabled={this.props.disabled || IS_DEVICE_TOUCHSCREEN}
+            maxLength={280}
+          />
+        </QuotePreviewWrapper>
 
         <Spacer height={2} />
 

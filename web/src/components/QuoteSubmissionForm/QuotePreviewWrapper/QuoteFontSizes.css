@@ -51,3 +51,93 @@
     font-size: 32px;
   }
 }
+
+
+.abs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .abs {
+    top: -10%;
+    bottom: -10%;
+    left: -10%;
+    right: -10%;
+  }
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.requiem {
+  font-family: "Requiem Display A", "Requiem Display B";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  color: #555350;
+}
+
+.page-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.quote__container {
+  width: 100%;
+  padding-top: 74.5917387%;
+  position: relative;
+
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .quote__container {
+    padding-top: 100%;
+  }
+}
+
+.quote__bg-image {
+  background-size: cover;
+  background-position: center;
+}
+
+.quote__wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quote {
+  height: 69%;
+  width: 52%;
+  padding: 1.4rem;
+
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+}
+
+@media (max-width: 900px) {
+  .quote {
+    width: 69%;
+  }
+}
+
+.quote__body {
+  margin: 1rem 0 ;
+  flex: 1;
+  line-height: 1;
+  background: transparent;
+  border: none;
+}
+
+.quote__body:focus {
+  outline: none;
+}
