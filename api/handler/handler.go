@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,20 +22,24 @@ import (
 var red = color.New(color.FgRed).SprintFunc()
 
 type handler struct {
-	svc    storage.Service
-	up     upload.Uploader
-	imgURL string
+	svc           storage.Service
+	up            upload.Uploader
+	imgURL        string
+	shareTemplate *template.Template
 }
 
 type handleFunc func(http.ResponseWriter, *http.Request) (interface{}, int, error)
 
 // New creates a handler instance for the quote service
 func New(svc storage.Service, up upload.Uploader, imgURL string) http.Handler {
+	shareTemplate := template.Must(template.ParseFiles("handler/share.html"))
+	h := handler{svc, up, imgURL, shareTemplate}
+
 	mux := http.NewServeMux()
-	h := handler{svc, up, imgURL}
 	mux.HandleFunc("/api/message", responseHandler(h.message))
 	mux.HandleFunc("/api/quote", responseHandler(h.quote))
 	mux.HandleFunc("/api/quotes", responseHandler(h.quotes))
+	mux.HandleFunc("/api/share", h.handleShareQuote)
 	return mux
 }
 

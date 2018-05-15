@@ -104,3 +104,25 @@ export function noop() {}
 export function clamp(n, { min = 0, max = 1 }) {
   return Math.max(min, Math.min(n, max));
 }
+
+export function makeFacebookShareURL(quoteID) {
+  return `https://www.facebook.com/sharer/sharer.php?u=${makeShareURL(
+    quoteID
+  )}`;
+}
+
+export function makeTwitterShareURL(quoteID) {
+  return `https://twitter.com/home?status=What%20matters%20to%20me%20${makeShareURL(
+    quoteID
+  )}`;
+}
+
+/**
+ * Render a URL for the share endpoint
+ * @param {string} quoteID
+ */
+export function makeShareURL(quoteID) {
+  return encodeURI(
+    `https://sharing-wall-api.herokuapp.com/api/share?quoteID=${quoteID}`
+  );
+}
