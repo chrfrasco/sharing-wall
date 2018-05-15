@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- Facebook tags -->
+  <meta property="og:url" content="https://sharing-wall-web.herokuapp.com/quote/{{ .QuoteID }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="What Matters to Me | {{ .Name }}" />
+  <meta property="og:description" content="{{ .Body }}" />
+  <meta property="og:image" content="https://s3-ap-southeast-2.amazonaws.com/sharing-wall/{{ .QuoteID }}.png" />
+
+  <!-- Twitter tags -->
+  <meta property="twitter:card" content="player">
+  <meta property="twitter:site" content="@twohundredwomen">
+  <meta property="twitter:text:title" content="What Matters to Me | {{ .Name }}">
+  <meta property="twitter:description" content="{{ .Body }}">
+  <meta property="twitter:image" content="https://s3-ap-southeast-2.amazonaws.com/sharing-wall/{{ .QuoteID }}.png">
+
+  <title>Sharing Wall | 200 Women</title>
+</head>
+
+<body>
+  <script>
+    window.addEventListener("load", function () {
+      window.location.replace("https://sharing-wall-web.herokuapp.com/quote/{{ .QuoteID }}");
+    });
+  </script>
+</body>
+
+</html>
