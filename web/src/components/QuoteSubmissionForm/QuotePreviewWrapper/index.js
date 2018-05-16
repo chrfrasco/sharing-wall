@@ -12,7 +12,7 @@ export default function QuotePreviewWrapper({
   name = ""
 }) {
   return (
-    <div className="quote__container requiem">
+    <div className="quote__container quote__container--preview requiem">
       <div
         className="quote__bg-image abs abs-shrink"
         style={{

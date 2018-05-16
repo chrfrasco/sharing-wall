@@ -14,9 +14,13 @@ injectGlobal`
     color: #333333;
     -webkit-font-smoothing: antialiased;
     font-family: "Whitney SSm A", "Whitney SSm B";
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
     font-weight: 300;
+
+    @media (max-width: 900px) {
+      font-size: 16px;
+    }
   }
 
   input,

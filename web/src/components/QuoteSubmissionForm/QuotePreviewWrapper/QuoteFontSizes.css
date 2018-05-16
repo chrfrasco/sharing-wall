@@ -61,6 +61,17 @@
   bottom: 0;
 }
 
+.abs.abs-shrink {
+  top: -10%;
+  bottom: -10%;
+}
+
+.abs.abs--square {
+  left: -10%;
+  right: -10%;
+  max-width: 120%;
+}
+
 @media (max-width: 900px) {
   .abs.abs-shrink {
     top: -10%;
@@ -95,6 +106,14 @@
   position: relative;
 
   overflow: hidden;
+}
+
+.quote__container.quote__container--preview {
+  padding-top: 62%;
+}
+
+.quote__container.quote__container--square {
+  padding-top: 100%;
 }
 
 @media (max-width: 900px) {

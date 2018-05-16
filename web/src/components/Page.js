@@ -6,5 +6,9 @@ export default styled.main`
   width: 100%;
   max-width: 880px;
   margin: 0 auto;
-  padding-top: 64px;
+  padding: 212px 0;
+
+  @media (max-width: 599px) {
+    padding: 150px 32px;
+  }
 `;

@@ -1,0 +1,35 @@
+.TextLogo,
+.TextLogo:visited {
+  font-family: "Requiem Display A", "Requiem Display B";
+  font-style: normal;
+  font-weight: 400;
+  cursor: pointer;
+  text-decoration: none;
+  color: #575756 !important;
+}
+
+.TextLogo__top {
+  letter-spacing: -2px;
+  font-weight: 200;
+  font-size: 105px;
+  line-height: 0;
+}
+
+.TextLogo__bottom {
+  margin-left: 3px;
+  font-weight: 200;
+  font-size: 38px;
+  line-height: 0;
+}
+
+.TextLogo--DE .TextLogo__bottom {
+  letter-spacing: 1px;
+}
+
+@media (max-width: 599px) {
+  .TextLogo {
+    margin-left: -46px;
+    width: 117px;
+    transform: translateY(0) scale(0.8);
+  }
+}

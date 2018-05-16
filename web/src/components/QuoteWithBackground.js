@@ -53,9 +53,14 @@ function ShareLinks({ quote }) {
   );
 }
 
-export default ({ quote, showShare = false, tight = false, ...rest }) => (
-  <div className="quote__container">
-    <Quote quote={quote} {...rest} />
-    {showShare && quote != null && <ShareLinks quote={quote} />}
-  </div>
-);
+export default ({ quote, showShare = false, square = false, ...rest }) => {
+  const classNames = ["quote__container", square && "quote__container--square"]
+    .filter(Boolean)
+    .join(" ");
+  return (
+    <div className={classNames}>
+      <Quote quote={quote} square={square} {...rest} />
+      {showShare && quote != null && <ShareLinks quote={quote} />}
+    </div>
+  );
+};

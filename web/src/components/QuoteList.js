@@ -23,7 +23,7 @@ function QuoteListItem({ quote }) {
       <Modal.Toggle>
         {openModal => (
           <GridItem style={{ cursor: "pointer" }} onClick={openModal}>
-            <QuoteWithBackground quote={quote} tight />
+            <QuoteWithBackground quote={quote} square />
           </GridItem>
         )}
       </Modal.Toggle>
