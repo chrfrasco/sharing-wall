@@ -34,10 +34,8 @@ export function QuoteView({ quote, ...rest }) {
     quote.quoteID
   }.png`;
 
-  const { className, square, ...props } = rest;
-  const styleName = [className, "abs", square && "abs--square"]
-    .filter(Boolean)
-    .join(" ");
+  const { className, ...props } = rest;
+  const styleName = [className, "abs"].join(" ");
 
   return (
     <LazyImage

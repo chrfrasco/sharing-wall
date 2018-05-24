@@ -61,19 +61,8 @@
   bottom: 0;
 }
 
-.abs.abs-shrink {
-  top: -10%;
-  bottom: -10%;
-}
-
-.abs.abs--square {
-  left: -10%;
-  right: -10%;
-  max-width: 120%;
-}
-
 @media (max-width: 900px) {
-  .abs.abs-shrink {
+  .abs {
     top: -10%;
     bottom: -10%;
     left: -10%;
@@ -118,7 +107,7 @@
 
 @media (max-width: 900px) {
   .quote__container {
-    padding-top: 100%;
+    padding-top: 100% !important;
   }
 }
 
@@ -134,7 +123,7 @@
 }
 
 .quote {
-  height: 69%;
+  height: 86%;
   width: 52%;
   padding: 1.4rem;
 
@@ -146,6 +135,7 @@
 @media (max-width: 900px) {
   .quote {
     width: 69%;
+    height: 69%;
   }
 }
 
