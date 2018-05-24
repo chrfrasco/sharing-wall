@@ -136,24 +136,39 @@ func (h handler) generateAndUploadImageForQuote(q storage.Quote) (string, error)
 	}
 
 	var imgResult struct {
-		Png string `json:"png"`
+		Sml string `json:"sml"`
+		Lge string `json:"lge"`
 	}
 	err = json.Unmarshal(imgRespJSON, &imgResult)
 	if err != nil {
 		return "", fmt.Errorf("could not unmarshal img response: %v", err)
 	}
 
-	imgBytes, err := base64.StdEncoding.DecodeString(imgResult.Png)
+	err = h.uploadImage(imgResult.Sml, fmt.Sprintf("small/%s", q.QuoteID))
 	if err != nil {
-		return "", fmt.Errorf("could not decode response: %v", err)
+		return "", err
 	}
 
-	err = h.up.Upload(q.QuoteID+".png", imgBytes)
+	err = h.uploadImage(imgResult.Lge, q.QuoteID)
 	if err != nil {
-		return "", fmt.Errorf("could not upload image: %v", err)
+		return "", err
 	}
 
 	return fmt.Sprintf("https://s3-ap-southeast-2.amazonaws.com/sharing-wall/%s.png", q.QuoteID), nil
+}
+
+func (h handler) uploadImage(img string, key string) error {
+	imgBytes, err := base64.StdEncoding.DecodeString(img)
+	if err != nil {
+		return fmt.Errorf("could not decode response: %v", err)
+	}
+
+	err = h.up.Upload(key+".png", imgBytes)
+	if err != nil {
+		return fmt.Errorf("could not upload image: %v", err)
+	}
+
+	return nil
 }
 
 // deleteQuote removes a quote from the database. This route should be authenticated.

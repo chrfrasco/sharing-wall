@@ -3,7 +3,8 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const morgan = require("morgan");
 
-const createRenderer = require("./src/renderer");
+const createRenderer = require("./renderer");
+const resize = require("./resize");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -42,9 +43,16 @@ async function handle(
     return;
   }
 
-  const imgBuf = await renderer.quote({ quote, name, backgroundVersion });
-  const png = imgBuf.toString("base64"); // `<img src="data:image/png;base64,${imgBuf.toString( "base64")}" style="max-width: 100%;">`;
-  res.status(200).send({ png });
+  try {
+    const imgBuffer = await renderer.quote({ quote, name, backgroundVersion });
+    const smallImgBuffer = await resize(imgBuffer, { width: 400 });
+
+    const lge = imgBuffer.toString("base64");
+    const sml = smallImgBuffer.toString("base64");
+    res.status(200).send({ sml, lge });
+  } catch (e) {
+    throw e;
+  }
 }
 
 app.get("/", async (req, res) => {

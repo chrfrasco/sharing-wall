@@ -1,9 +1,11 @@
 FROM kinlan/puppets:latest
 
+RUN npm install -g yarn
+
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-RUN npm install
+RUN yarn
 
 COPY ./ ./
 
@@ -16,7 +18,7 @@ USER pptruser
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD if [ ${APP_ENV} = production ]; then \
-	  npm run server; \
+	  yarn server; \
 	else \
-	  npm run start; \
+ 		yarn start; \
 	fi

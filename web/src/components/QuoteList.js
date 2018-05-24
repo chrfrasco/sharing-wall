@@ -23,7 +23,13 @@ function QuoteListItem({ quote }) {
       <Modal.Toggle>
         {openModal => (
           <GridItem style={{ cursor: "pointer" }} onClick={openModal}>
-            <QuoteWithBackground quote={quote} square />
+            <img
+              src={`https://s3-ap-southeast-2.amazonaws.com/sharing-wall/small/${
+                quote.quoteID
+              }.png`}
+              style={{ width: "100%", height: "100%" }}
+              alt=""
+            />
           </GridItem>
         )}
       </Modal.Toggle>
