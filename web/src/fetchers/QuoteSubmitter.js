@@ -8,14 +8,9 @@ export default class QuoteSubmitter extends React.Component {
   render() {
     switch (this.state.loadingState) {
       case states.NOT_STARTED:
-        return this.props.children({
-          isSubmitting: false,
-          submitQuote: this.submitQuote
-        });
-
       case states.LOADING:
         return this.props.children({
-          isSubmitting: true,
+          isSubmitting: this.state.loadingState === states.LOADING,
           submitQuote: this.submitQuote
         });
 
