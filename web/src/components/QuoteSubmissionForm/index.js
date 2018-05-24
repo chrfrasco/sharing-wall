@@ -14,30 +14,16 @@ import {
 } from "../../constants";
 import { getFontSizeClassName, rand, validateQuote } from "../../utils";
 
-const getQuoteFromState = ({
-  quote,
-  name,
-  email,
-  country,
-  backgroundVersion
-}) => ({
-  body: quote,
-  backgroundVersion,
-  name,
-  email,
-  country
-});
-
-const initialState = IS_PRODUCTION
+const initialQuote = IS_PRODUCTION
   ? {
-      quote: "",
+      body: "",
       name: "",
       email: "",
       country: "",
       backgroundVersion: rand(1, 4)
     }
   : {
-      quote: "Treating others as I would have them treat me.",
+      body: "Treating others as I would have them treat me.",
       name: "Christian Scott",
       email: "christianfscott@gmail.com",
       country: "New Zealand",
@@ -45,7 +31,7 @@ const initialState = IS_PRODUCTION
     };
 
 class QuoteSubmissionForm extends React.Component {
-  state = initialState;
+  state = { quote: initialQuote };
 
   constructor(props) {
     super(props);
@@ -61,20 +47,20 @@ class QuoteSubmissionForm extends React.Component {
     const textAreaClassName = [
       "quote__body",
       "row",
-      getFontSizeClassName(this.state.quote)
+      getFontSizeClassName(this.state.quote.body)
     ].join(" ");
 
     return (
       <form onSubmit={this.handleFormSubmit}>
         <QuotePreviewWrapper
-          bgVersion={this.state.backgroundVersion}
-          name={this.state.name}
+          bgVersion={this.state.quote.backgroundVersion}
+          name={this.state.quote.name}
         >
           <textarea
-            name="quote"
+            name="body"
             className={textAreaClassName}
             ref={this.textArea}
-            value={this.state.quote}
+            value={this.state.quote.body}
             onChange={this.handleInputChange}
             placeholder={textareaPlaceholder}
             readOnly={IS_DEVICE_TOUCHSCREEN}
@@ -99,13 +85,13 @@ class QuoteSubmissionForm extends React.Component {
 
           {IS_DEVICE_TOUCHSCREEN ? (
             <FormField>
-              <label htmlFor="form-quote">What matters to you?</label>
+              <label htmlFor="form-body">What matters to you?</label>
               <textarea
                 required
                 disabled={this.props.isSubmitting}
-                name="quote"
-                id="form-quote"
-                value={this.state.quote}
+                name="body"
+                id="form-body"
+                value={this.state.quote.body}
                 onChange={this.handleInputChange}
                 placeholder="Enter your answer"
                 maxLength={MAX_QUOTE_LEN}
@@ -124,7 +110,7 @@ class QuoteSubmissionForm extends React.Component {
                 name="name"
                 id="form-name"
                 placeholder="Enter your name"
-                value={this.state.name}
+                value={this.state.quote.name}
                 onChange={this.handleInputChange}
               />
             </FormField>
@@ -138,7 +124,7 @@ class QuoteSubmissionForm extends React.Component {
                 id="form-country"
                 autoComplete="address-level1"
                 placeholder="Enter your country"
-                value={this.state.country}
+                value={this.state.quote.country}
                 onChange={this.handleInputChange}
               />
             </FormField>
@@ -152,7 +138,7 @@ class QuoteSubmissionForm extends React.Component {
                 name="email"
                 id="form-email"
                 placeholder="Enter your email"
-                value={this.state.email}
+                value={this.state.quote.email}
                 onChange={this.handleInputChange}
               />
             </FormField>
@@ -165,7 +151,7 @@ class QuoteSubmissionForm extends React.Component {
               <SubmitButton
                 type="submit"
                 value="Submit"
-                disabled={!validateQuote(this.state)}
+                disabled={!validateQuote(this.state.quote)}
               />
             )}
           </div>
@@ -175,14 +161,16 @@ class QuoteSubmissionForm extends React.Component {
   }
 
   handleInputChange(ev) {
-    this.setState({ [ev.target.name]: ev.target.value });
+    const name = ev.target.name;
+    const value = ev.target.value;
+    this.setState(state => ({
+      quote: { ...state.quote, [name]: value }
+    }));
   }
 
-  async handleFormSubmit(ev) {
+  handleFormSubmit(ev) {
     ev.preventDefault();
-
-    const quote = getQuoteFromState(this.state);
-    this.props.submitQuote(quote);
+    this.props.submitQuote(this.state.quote);
   }
 }
 

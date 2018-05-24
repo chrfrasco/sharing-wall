@@ -167,11 +167,10 @@ export function rand(min, max) {
  * @returns {boolean}
  */
 export function validateQuote(quote) {
-  const validQuoteBody =
-    0 < quote.quote.length && quote.quote.length < MAX_QUOTE_LEN;
+  const validBody = 0 < quote.body.length && quote.body.length < MAX_QUOTE_LEN;
   const validEmail = validateEmail(quote.email);
   return (
-    validQuoteBody &&
+    validBody &&
     validEmail &&
     quote.name != null &&
     quote.name !== "" &&
