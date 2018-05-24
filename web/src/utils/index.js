@@ -1,4 +1,5 @@
 import api from "../api";
+import { MAX_QUOTE_LEN } from "../constants";
 
 /**
  * @param {object} quote
@@ -117,12 +118,64 @@ export function makeTwitterShareURL(quoteID) {
   )}`;
 }
 
+const BASE_URL =
+  process.env.REACT_APP_BASE_URL || "https://sharing-wall-api.herokuapp.com";
 /**
  * Render a URL for the share endpoint
  * @param {string} quoteID
  */
 export function makeShareURL(quoteID) {
-  return encodeURI(
-    `https://sharing-wall-api.herokuapp.com/api/share?quoteID=${quoteID}`
+  return encodeURI(`${BASE_URL}/api/share?quoteID=${quoteID}`);
+}
+
+const fontSizeClassNames = {
+  sml: "quote-font--sml",
+  med: "quote-font--med",
+  lge: "quote-font--lge"
+};
+
+/**
+ * Get the font size class name for the
+ * current quote string length.
+ *
+ * @param {string} quote
+ * @returns {string}
+ */
+export function getFontSizeClassName(quote) {
+  const charCount = quote.length;
+  if (charCount < 65) {
+    return fontSizeClassNames.lge;
+  } else if (charCount < 100) {
+    return fontSizeClassNames.med;
+  } else {
+    return fontSizeClassNames.sml;
+  }
+}
+
+/**
+ * Return a random natural number in the range [min, max)
+ *
+ * @param {number} min floor
+ * @param {number} max ceiling
+ */
+export function rand(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+/**
+ * @param {any} quote Object to validate
+ * @returns {boolean}
+ */
+export function validateQuote(quote) {
+  const validQuoteBody =
+    0 < quote.quote.length && quote.quote.length < MAX_QUOTE_LEN;
+  const validEmail = validateEmail(quote.email);
+  return (
+    validQuoteBody &&
+    validEmail &&
+    quote.name != null &&
+    quote.name !== "" &&
+    quote.country != null &&
+    quote.country !== ""
   );
 }

@@ -1,5 +1,4 @@
 import React from "react";
-import { Redirect } from "react-router";
 import QuotePreviewWrapper from "./QuotePreviewWrapper";
 import {
   FlexContainer,
@@ -8,35 +7,12 @@ import {
   SubmitButton,
   LoadingSubmitButton
 } from "../elements";
-import { IS_DEVICE_TOUCHSCREEN, IS_PRODUCTION } from "../../constants";
-import api, { states } from "../../api";
-import { validateEmail } from "../../utils";
-
-const MAX_QUOTE_LEN = 400;
-
-const fontSizeClassNames = {
-  sml: "quote-font--sml",
-  med: "quote-font--med",
-  lge: "quote-font--lge"
-};
-
-/**
- * Get the font size class name for the
- * current quote string length.
- *
- * @param {string} quote
- * @returns {string}
- */
-function getFontSizeClassName(quote) {
-  const charCount = quote.length;
-  if (charCount < 65) {
-    return fontSizeClassNames.lge;
-  } else if (charCount < 100) {
-    return fontSizeClassNames.med;
-  } else {
-    return fontSizeClassNames.sml;
-  }
-}
+import {
+  IS_DEVICE_TOUCHSCREEN,
+  IS_PRODUCTION,
+  MAX_QUOTE_LEN
+} from "../../constants";
+import { getFontSizeClassName, rand, validateQuote } from "../../utils";
 
 function getQuoteFromState({ quote, name, email, country, backgroundVersion }) {
   return {
@@ -48,13 +24,8 @@ function getQuoteFromState({ quote, name, email, country, backgroundVersion }) {
   };
 }
 
-function rand(min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-}
-
 const initialState = IS_PRODUCTION
   ? {
-      loadingState: states.NOT_STARTED,
       quote: "",
       name: "",
       email: "",
@@ -62,7 +33,6 @@ const initialState = IS_PRODUCTION
       backgroundVersion: rand(1, 4)
     }
   : {
-      loadingState: states.NOT_STARTED,
       quote: "Treating others as I would have them treat me.",
       name: "Christian Scott",
       email: "christianfscott@gmail.com",
@@ -70,7 +40,7 @@ const initialState = IS_PRODUCTION
       backgroundVersion: rand(1, 4)
     };
 
-export default class QuoteSubmissionForm extends React.Component {
+class QuoteSubmissionForm extends React.Component {
   state = initialState;
   bgVersion = rand(1, 4);
 
@@ -81,26 +51,10 @@ export default class QuoteSubmissionForm extends React.Component {
   }
 
   render() {
-    switch (this.state.loadingState) {
-      case states.LOADED:
-        return <Redirect to={`/quote/${this.state.quoteID}`} />;
-      case states.NOT_STARTED:
-        return this.renderForm(false);
-      case states.LOADING:
-        return this.renderForm(true);
-      case states.ERROR:
-        return <Redirect to="/error" />;
-      default:
-        throw new Error(
-          `loadingState ${this.state.loadingState.toString()} not handled`
-        );
-    }
-  }
-
-  renderForm(loading) {
     const textareaPlaceholder = IS_DEVICE_TOUCHSCREEN
       ? "Type your answer below"
       : "Type here";
+
     const textAreaClassName = [
       "quote__body",
       "row",
@@ -121,7 +75,7 @@ export default class QuoteSubmissionForm extends React.Component {
             onChange={this.handleInputChange}
             placeholder={textareaPlaceholder}
             readOnly={IS_DEVICE_TOUCHSCREEN}
-            disabled={loading || IS_DEVICE_TOUCHSCREEN}
+            disabled={this.props.isSubmitting || IS_DEVICE_TOUCHSCREEN}
             maxLength={280}
           />
         </QuotePreviewWrapper>
@@ -145,7 +99,7 @@ export default class QuoteSubmissionForm extends React.Component {
               <label htmlFor="form-quote">What matters to you?</label>
               <textarea
                 required
-                disabled={loading}
+                disabled={this.props.isSubmitting}
                 name="quote"
                 id="form-quote"
                 value={this.state.quote}
@@ -162,7 +116,7 @@ export default class QuoteSubmissionForm extends React.Component {
               <label htmlFor="form-name">Name: </label>
               <input
                 required
-                disabled={loading}
+                disabled={this.props.isSubmitting}
                 autoComplete="name"
                 name="name"
                 id="form-name"
@@ -176,7 +130,7 @@ export default class QuoteSubmissionForm extends React.Component {
               <label htmlFor="form-country">Country: </label>
               <input
                 required
-                disabled={loading}
+                disabled={this.props.isSubmitting}
                 name="country"
                 id="form-country"
                 autoComplete="address-level1"
@@ -191,7 +145,7 @@ export default class QuoteSubmissionForm extends React.Component {
               <input
                 type="email"
                 required
-                disabled={loading}
+                disabled={this.props.isSubmitting}
                 name="email"
                 id="form-email"
                 placeholder="Enter your email"
@@ -202,13 +156,13 @@ export default class QuoteSubmissionForm extends React.Component {
           </div>
 
           <div>
-            {loading ? (
+            {this.props.isSubmitting ? (
               <LoadingSubmitButton />
             ) : (
               <SubmitButton
                 type="submit"
                 value="Submit"
-                disabled={!this.validate()}
+                disabled={!validateQuote(this.state)}
               />
             )}
           </div>
@@ -221,32 +175,12 @@ export default class QuoteSubmissionForm extends React.Component {
     this.setState({ [ev.target.name]: ev.target.value });
   }
 
-  /**
-   * @param {React.FormEvent} ev
-   */
   async handleFormSubmit(ev) {
     ev.preventDefault();
 
-    this.setState({ loadingState: states.LOADING });
-
-    try {
-      const quote = getQuoteFromState(this.state);
-      const updatedQuote = await api.postQuote(quote);
-      this.setState({ loadingState: states.LOADED, ...updatedQuote });
-    } catch (e) {
-      this.setState({ loadingState: states.ERROR });
-    }
-  }
-
-  validate() {
-    const validQuote =
-      0 < this.state.quote.length && this.state.quote.length < MAX_QUOTE_LEN;
-    const validEmail = validateEmail(this.state.email);
-    return (
-      validQuote &&
-      validEmail &&
-      this.state.name !== "" &&
-      this.state.country !== ""
-    );
+    const quote = getQuoteFromState(this.state);
+    this.props.submitQuote(quote);
   }
 }
+
+export default QuoteSubmissionForm;
