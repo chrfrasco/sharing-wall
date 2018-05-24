@@ -6,9 +6,10 @@ services:
       args:
         app_env: ${APP_ENV}
     volumes:
-      - ./img:/app
+      - ./img/src:/app/src
     ports:
       - 5000:5000
+
   web:
     build:
       context: ./web
