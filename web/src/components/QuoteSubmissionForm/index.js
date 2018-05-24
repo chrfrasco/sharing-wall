@@ -14,15 +14,19 @@ import {
 } from "../../constants";
 import { getFontSizeClassName, rand, validateQuote } from "../../utils";
 
-function getQuoteFromState({ quote, name, email, country, backgroundVersion }) {
-  return {
-    body: quote,
-    backgroundVersion,
-    name,
-    email,
-    country
-  };
-}
+const getQuoteFromState = ({
+  quote,
+  name,
+  email,
+  country,
+  backgroundVersion
+}) => ({
+  body: quote,
+  backgroundVersion,
+  name,
+  email,
+  country
+});
 
 const initialState = IS_PRODUCTION
   ? {
@@ -42,7 +46,6 @@ const initialState = IS_PRODUCTION
 
 class QuoteSubmissionForm extends React.Component {
   state = initialState;
-  bgVersion = rand(1, 4);
 
   constructor(props) {
     super(props);
