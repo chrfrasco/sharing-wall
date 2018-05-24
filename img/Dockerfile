@@ -2,10 +2,10 @@ FROM kinlan/puppets:latest
 
 WORKDIR /app
 
-COPY package.json package.json
+COPY package.json yarn.lock ./
 RUN npm install
 
-COPY . /app/
+COPY ./ ./
 
 RUN groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
     && mkdir -p /home/pptruser/Downloads \
@@ -16,7 +16,7 @@ USER pptruser
 
 ENTRYPOINT ["dumb-init", "--"]
 CMD if [ ${APP_ENV} = production ]; then \
-	  node index.js; \
+	  npm run server; \
 	else \
 	  npm run start; \
 	fi
